@@ -25,6 +25,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,15 +37,17 @@ import androidx.navigation.compose.rememberNavController
 import com.example.focustimer.LocalNavController
 import com.example.focustimer.loadUserName
 import com.example.focustimer.logOut
-import com.example.focustimer.model.TimerViewModel
-import com.example.pre_capstone.model.TimerSetting
+import com.example.focustimer.model.AppTimerViewModel
+import com.example.focustimer.model.TimerSetting
+import com.example.focustimer.watchModel.WatchData
+import com.example.focustimer.watchModel.WatchViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Preview
 @Composable
-fun MainPage( viewModel: TimerViewModel = viewModel()) {
+fun MainPage( viewModel: AppTimerViewModel = viewModel()) {
     val context = LocalContext.current
     val navHostController = LocalNavController.current
     val user = FirebaseAuth.getInstance().currentUser
@@ -52,7 +55,6 @@ fun MainPage( viewModel: TimerViewModel = viewModel()) {
     var isLoading by remember { mutableStateOf(true) }
     var userName by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
-
 
     Box(
         modifier = Modifier
@@ -127,20 +129,31 @@ fun MainPage( viewModel: TimerViewModel = viewModel()) {
 
     LoadingScreen(isLoading = isLoading)
 }
-
 @Composable
 fun myBox(modifier: Modifier, navHostController: NavHostController, timerSetting: TimerSetting){
     val navController = rememberNavController()
+    val timerViewModel : WatchViewModel by lazy { WatchViewModel.getInstance() }
     Column (modifier = modifier
         .fillMaxHeight(1f)
         .padding(10.dp)
+        .shadow(
+        elevation = 8.dp,
+        shape = RoundedCornerShape(20.dp),
+        spotColor = Color.Black.copy(alpha = 0.25f)
+    )
         .background(
             color = Color(timerSetting.backgroundColor),
             shape = RoundedCornerShape(20.dp)
         )
         .clickable {
-            val route ="timer/${timerSetting.name}/${timerSetting.workTime}/${timerSetting.restTime}/${timerSetting.index}"
-            navHostController.navigate(route) },
+            timerViewModel.updateWatchInfo(
+                newData = WatchData(timerSetting = timerSetting, activeTimer = 1, time = 0)
+            )
+            navHostController.navigate("timer") }
+
+
+
+        ,
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
         ){ Text(text = timerSetting.name,  fontSize = 25.sp)

@@ -26,7 +26,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.Text
-import com.example.focustimer.model.TimerViewModel
+import com.example.focustimer.model.AppTimerViewModel
 import com.google.android.gms.wearable.DataEvent
 import com.google.android.gms.wearable.DataMapItem
 import com.google.android.gms.wearable.MessageClient
@@ -37,7 +37,6 @@ import kotlinx.coroutines.launch
 import kotlin.coroutines.resume
 import com.google.android.gms.tasks.Task
 import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.concurrent.timer
 import kotlin.coroutines.resumeWithException
 @Preview(widthDp = 200, heightDp = 200)
 @Composable
@@ -47,7 +46,7 @@ fun WatchTimerControl(navController: NavHostController = rememberNavController()
     var currentTimerName by remember { mutableStateOf("") }
     var activeStopwatch by remember { mutableStateOf(1) }
 
-    val viewModel: TimerViewModel by lazy { TimerViewModel.getInstance() }
+    val viewModel: AppTimerViewModel by lazy { AppTimerViewModel.getInstance() }
     val timerInfo by viewModel.timerInfo.collectAsState()
     val activeTimer by viewModel.activateTimer.collectAsState()
     val timerSetting by viewModel.currentTimerSetting.collectAsState()

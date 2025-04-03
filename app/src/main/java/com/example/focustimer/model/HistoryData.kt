@@ -1,4 +1,4 @@
-package com.example.pre_capstone.model
+package com.example.focustimer.model
 
 import java.time.LocalDateTime
 

@@ -4,14 +4,12 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.focustimer.loadTimerSettingsFireBase
-import com.example.pre_capstone.model.HistoryData
-import com.example.pre_capstone.model.TimerSetting
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class TimerViewModel : ViewModel() {
+class AppTimerViewModel : ViewModel() {
     private val _timerSettings = MutableStateFlow<List<TimerSetting>>(emptyList())
     val timerSettings: StateFlow<List<TimerSetting>> = _timerSettings
     private val _timerInfo = MutableStateFlow(HistoryData())
@@ -27,11 +25,11 @@ class TimerViewModel : ViewModel() {
 
     companion object {
         // 싱글톤 인스턴스
-        private var instance: TimerViewModel? = null
+        private var instance: AppTimerViewModel? = null
         // 인스턴스 가져오기
-        fun getInstance(): TimerViewModel {
+        fun getInstance(): AppTimerViewModel {
             if (instance == null) {
-                instance = TimerViewModel()
+                instance = AppTimerViewModel()
             }
             return instance!!
         }
@@ -54,7 +52,7 @@ class TimerViewModel : ViewModel() {
     }
     fun saveTimerSettings(userId: String, settings: List<TimerSetting>) {
         viewModelScope.launch {
-            val updates = settings.associateBy { it.index.toString() }
+            val updates = settings.associateBy { it.category.toString() }
             database.child("users").child(userId).child("settings").child("timer")
                 .setValue(updates)
                 .addOnSuccessListener {
@@ -77,12 +75,6 @@ class TimerViewModel : ViewModel() {
     fun updateActiveTimer(newActiveTimer : Int){
         _activateTimer.value = newActiveTimer
     }
-
-
-
-
-
-
 
 }
 

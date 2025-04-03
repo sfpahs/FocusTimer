@@ -14,9 +14,11 @@ import android.os.Build
 import android.os.IBinder
 import android.provider.Settings
 import android.util.Log
+import androidx.compose.runtime.collectAsState
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
-import com.example.pre_capstone.model.HistoryData
+import com.example.focustimer.model.HistoryData
+import com.example.focustimer.watchModel.WatchViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,6 +26,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
+
 
 class TimerService : Service() {
     companion object {
@@ -35,21 +38,22 @@ class TimerService : Service() {
         const val ACTION_SWITCH = "com.example.pre_capstone.SWITCH"
     }
 
+    private val viewModel : WatchViewModel by lazy { WatchViewModel.getInstance() }
+    var setting = viewModel.setting.value
+    var time = viewModel.time.value
+    var activeTimer = viewModel.activeTimer.value
     // 콜백 인터페이스 정의
     interface TimerCallback {
         fun onTimerTick(workTimer: Int, restTimer: Int, activeStopwatch: Int)
     }
 
+    inner class TimerBinder : Binder() {
+        fun getService(): TimerService = this@TimerService
+    }
+
     private val binder = TimerBinder()
     private var timerJob: Job? = null
     private var isRunning = false
-    var activeStopwatch = 1
-    private var workTimer = 0
-    private var restTimer = 0
-    private var workTime = 0
-    private var restTime = 0
-    var timerName = ""
-    private var category = 0
     private var totalWorkTime = 0
     private var totalRestTime = 0
     private var workCount = 1
@@ -57,19 +61,6 @@ class TimerService : Service() {
     private var mulTime = false
     private var callback: TimerCallback? = null
 
-    inner class TimerBinder : Binder() {
-        fun getService(): TimerService = this@TimerService
-    }
-
-    override fun onBind(intent: Intent): IBinder {
-        return binder
-    }
-
-    override fun onCreate() {
-        super.onCreate()
-        createNotificationChannel()
-        checkAndRequestPermissions()
-    }
 
     private fun checkAndRequestPermissions() {
         // 알림 권한 확인 (Android 13 이상)
@@ -114,16 +105,12 @@ class TimerService : Service() {
         }
     }
 
+
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         // 서비스 시작 시 즉시 포그라운드로 전환
         startForeground(NOTIFICATION_ID, createNotification())
-
         when (intent?.action) {
             ACTION_START -> {
-                timerName = intent.getStringExtra("timerName") ?: ""
-                workTime = intent.getIntExtra("workTime", 60)
-                restTime = intent.getIntExtra("restTime", 10)
-                category = intent.getIntExtra("category", 1)
                 startTimer()
             }
             ACTION_PAUSE -> pauseTimer()
@@ -177,15 +164,15 @@ class TimerService : Service() {
         isRunning = false
         timerJob?.cancel()
 
-        if (activeStopwatch == 1) totalWorkTime += workTimer
-        else totalRestTime += restTimer
+        if (activeTimer == 1) totalWorkTime += time
+        else totalRestTime += time
 
         totalWorkTime /= 60
         totalRestTime /= 60
 
         val historyData = HistoryData(
             startTime = startTime,
-            category = category,
+            category = setting.category,
             totalMinute = totalWorkTime + totalRestTime,
             workingMinute = totalWorkTime,
             restMinute = totalRestTime,
@@ -211,16 +198,16 @@ class TimerService : Service() {
     private fun switchTimer() {
         timerJob?.cancel()
 
-        activeStopwatch = if (activeStopwatch == 1) {
-            totalWorkTime += workTimer
-            workTimer = 0
+        viewModel.setActiveTimer(if (activeTimer == 1) {
+            totalWorkTime += time
+            viewModel.resetTimer()
             2
         } else {
-            totalRestTime += restTimer
+            totalRestTime += time
             workCount++
-            restTimer = 0
+            viewModel.resetTimer()
             1
-        }
+        })
 
         startTimerJob()
         updateNotification()
@@ -230,19 +217,25 @@ class TimerService : Service() {
         timerJob = CoroutineScope(Dispatchers.Default).launch {
             while (isRunning) {
                 delay(1000L)
-                if (activeStopwatch == 1) {
-                    workTimer += 1 * if (mulTime) 60 else 1
-                } else {
-                    restTimer += 1 * if (mulTime) 60 else 1
-                }
-                // 콜백으로 UI 업데이트
-                callback?.onTimerTick(workTimer, restTimer, activeStopwatch)
+                viewModel.increaceTimer()
+
                 updateNotification()
             }
         }
     }
 
+
+
+
+
+
+
+
     private fun createNotification(): Notification {
+
+        setting = viewModel.setting.value
+        time = viewModel.time.value
+        activeTimer = viewModel.activeTimer.value
         // 알림 바디 클릭 시 앱 실행 인텐트
         val notificationIntent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
@@ -270,13 +263,13 @@ class TimerService : Service() {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
-        val currentTimer = if (activeStopwatch == 1) workTimer else restTimer
-        val maxTime = if (activeStopwatch == 1) workTime else restTime
-        val timerText = "${currentTimer / 60}:${(currentTimer % 60).toString().padStart(2, '0')} / ${maxTime / 60}:${(maxTime % 60).toString().padStart(2, '0')}"
-        val activityType = if (activeStopwatch == 1) "작업 중" else "휴식 중"
+
+        val maxTime = if (activeTimer == 1) setting.workTime else setting.restTime
+        val timerText = "${time / 60}:${(time % 60).toString().padStart(2, '0')} / ${maxTime / 60}:${(maxTime % 60).toString().padStart(2, '0')}"
+        val activityType = if (activeTimer == 1) "작업 중" else "휴식 중"
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("$timerName - $activityType")
+            .setContentTitle("${setting.name} - $activityType")
             .setContentText(timerText)
             .setSmallIcon(R.drawable.ic_timer)
             .setContentIntent(pendingIntent)
@@ -313,6 +306,16 @@ class TimerService : Service() {
     override fun onTaskRemoved(rootIntent: Intent) {
         removeNotificationAndStopService()
         super.onTaskRemoved(rootIntent)
+    }
+
+    override fun onBind(intent: Intent): IBinder {
+        return binder
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        createNotificationChannel()
+        checkAndRequestPermissions()
     }
 
     override fun onDestroy() {

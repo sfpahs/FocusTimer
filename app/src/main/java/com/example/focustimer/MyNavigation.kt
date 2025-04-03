@@ -31,10 +31,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.pre_capstone.DualStopwatchApp
-import com.example.pre_capstone.LoginScreen
-import com.example.pre_capstone.signupPage
-import com.example.pre_capstone.weekHistoryApp
 import com.google.firebase.auth.FirebaseAuth
 
 
@@ -113,31 +109,8 @@ fun MyBottomNavi(navController: NavHostController = rememberNavController()) {
                     weekHistoryApp() }
                 composable("signup") { signupPage() }
                 composable("signin") { LoginScreen() }
+                composable("timer") { DualStopwatchApp() }
 
-
-                //todo이후 사용자에 최대칸 넣어서 실행할것 추후 최적화
-
-                    composable(
-                        route = "timer/{timerName}/{workTime}/{restTime}/{category}",
-                        arguments = listOf(
-                            navArgument("timerName") { type = NavType.StringType },
-                            navArgument("workTime") { type = NavType.IntType },
-                            navArgument("restTime") { type = NavType.IntType },
-                            navArgument("category") { type = NavType.IntType }
-                        )
-                    ) { entry ->
-                        val timerName = entry.arguments?.getString("timerName") ?: ""
-                        val workTime = entry.arguments?.getInt("workTime") ?: 60
-                        val restTime = entry.arguments?.getInt("restTime") ?: 10
-                        val category = entry.arguments?.getInt("category") ?: 0
-
-                        DualStopwatchApp(
-                            timerName = timerName,
-                            workTime = workTime,
-                            restTime = restTime,
-                            category = category
-                        )
-                    }
             }
         }
     }

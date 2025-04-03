@@ -2,8 +2,8 @@ package com.example.focustimer
 
 import android.content.Context
 import android.util.Log
-import com.example.pre_capstone.model.HistoryData
-import com.example.pre_capstone.model.TimerSetting
+import com.example.focustimer.model.HistoryData
+import com.example.focustimer.model.TimerSetting
 import com.google.android.gms.tasks.Task
 import com.google.firebase.Firebase
 import com.google.firebase.auth.AuthResult
@@ -218,7 +218,7 @@ fun saveDefaultUserSettingFireBase(uid: String, name : String, context: Context)
 
     val updates = HashMap<String, Any>()
     timerSettings.forEach { setting ->
-        updates["${setting.index}"] = setting.toMap()
+        updates["${setting.category}"] = setting.toMap()
     }
 
     userRef.child("name").setValue(name)
@@ -300,7 +300,7 @@ fun loadTodayHistoryData(historyRef : DatabaseReference, callback : (Pair<Int, I
 
 fun TimerSetting.toMap(): Map<String, Any> {
     return mapOf(
-        "index" to index,
+        "index" to category,
         "name" to name,
         "backgroundColor" to backgroundColor,
         "workTime" to workTime,

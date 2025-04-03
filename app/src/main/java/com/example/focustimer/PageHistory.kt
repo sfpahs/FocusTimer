@@ -36,8 +36,8 @@ import co.yml.charts.ui.barchart.models.BarStyle
 import co.yml.charts.ui.barchart.models.GroupBar
 import co.yml.charts.ui.barchart.models.GroupBarChartData
 import co.yml.charts.ui.barchart.models.SelectionHighlightData
-import com.example.focustimer.model.TimerViewModel
-import com.example.pre_capstone.model.TimerSetting
+import com.example.focustimer.model.AppTimerViewModel
+import com.example.focustimer.model.TimerSetting
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -47,7 +47,7 @@ import java.util.TimeZone
 
 @Preview
 @Composable
-fun weekHistoryApp( viewModel: TimerViewModel = viewModel()){
+fun weekHistoryApp( viewModel: AppTimerViewModel = viewModel()){
     val user = FirebaseAuth.getInstance().currentUser
     var isLoading by remember { mutableStateOf(true) }
     val timerSettings by viewModel.timerSettings.collectAsState()

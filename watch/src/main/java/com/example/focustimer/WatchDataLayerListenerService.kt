@@ -1,19 +1,20 @@
 package com.example.focustimer
 import android.content.Intent
 import android.util.Log
+import androidx.lifecycle.ViewModel
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.example.focustimer.model.TimerViewModel
+import com.example.focustimer.model.AppTimerViewModel
+import com.example.focustimer.model.TimerSetting
 import com.google.android.gms.wearable.DataEvent
 import com.google.android.gms.wearable.DataEventBuffer
 import com.google.android.gms.wearable.DataMapItem
 import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.WearableListenerService
+import com.example.focustimer.watchModel.WatchData
+import com.example.focustimer.watchModel.WatchViewModel
 
 class WatchDataLayerListenerService : WearableListenerService() {
-    val viewModel : TimerViewModel by lazy { TimerViewModel.getInstance() }
-    val timerInfo = viewModel.timerInfo.value
-    val timerSetting = viewModel.currentTimerSetting.value
-    val activeTimer = viewModel.activateTimer.value
+    val viewModel : WatchViewModel by lazy { WatchViewModel.getInstance() }
 
     companion object {
         private const val TAG = "WatchDataLayerService"
@@ -29,26 +30,25 @@ class WatchDataLayerListenerService : WearableListenerService() {
 
                 if (path == TIMER_STATUS_PATH) {
 
-
-
-
                     val dataMap = DataMapItem.fromDataItem(event.dataItem).dataMap
                     val timerName = dataMap.getString("timer_name", "")
-                    val activeStopwatch = dataMap.getInt("active_stopwatch", 1)
-                    val workTimer = dataMap.getInt("work_timer", 0)
-                    val restTimer = dataMap.getInt("rest_timer", 0)
 
-                    // 워치 UI 업데이트를 위한 브로드캐스트 전송
+                    // todo 이거 제거할 것
                     val intent = Intent("com.example.pre_capstone.TIMER_UPDATE")
                     intent.putExtra("timer_name", timerName)
-                    intent.putExtra("active_stopwatch", activeStopwatch)
-                    intent.putExtra("work_timer", workTimer)
-                    intent.putExtra("rest_timer", restTimer)
                     LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
+//todo 앱에서 데이터 보내는것 규격화해서 보낼 것
 
+                    viewModel.updateWatchInfo(
+                        newData = WatchData(
+                            timerSetting = TimerSetting(
+                                name = timerName,
 
-                    viewModel.updateActiveTimer(activeStopwatch)
+                            ),
+                            activeTimer = activeStopwatch,
 
+                            )
+                    )
 
 
 
@@ -77,11 +77,8 @@ class WatchDataLayerListenerService : WearableListenerService() {
 
 
 
-
-
-
-
             }
         }
     }
 }
+

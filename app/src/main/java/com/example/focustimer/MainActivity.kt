@@ -16,7 +16,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.focustimer.ui.theme.FocusTimerTheme
-import com.example.pre_capstone.TimerStoppedReceiver
 
 class MainActivity : ComponentActivity() {
     private lateinit var navController: NavHostController

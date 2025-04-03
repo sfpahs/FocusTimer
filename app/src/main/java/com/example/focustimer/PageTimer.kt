@@ -1,5 +1,6 @@
-package com.example.pre_capstone
+package com.example.focustimer
 
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
@@ -28,6 +29,7 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,32 +42,37 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.focustimer.LocalNavController
 import com.example.focustimer.MainActivity.Companion.timerStoppedReceiver
-import com.example.focustimer.TimerService
+import com.example.focustimer.model.TimerSetting
+import com.example.focustimer.watchModel.WatchViewModel
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun DualStopwatchApp(
-    timerName: String = "",
-    workTime: Int = 60,
-    restTime: Int = 10,
-    category: Int = 1
 ) {
+
     val navController = LocalNavController.current
     val context = LocalContext.current
-    val user = FirebaseAuth.getInstance().currentUser
     var workTimer by remember { mutableStateOf(0) }
     var restTimer by remember { mutableStateOf(0) }
     var mulTime by remember { mutableStateOf(false) }
     var workCount by remember { mutableStateOf(1) }
-    var activeStopwatch by remember { mutableStateOf(1) }
     var stopwatchRunning by remember { mutableStateOf(false) }
     var isStopped by remember { mutableStateOf(true) }
     var isChecked by remember { mutableStateOf(true) }
     var serviceConnection by remember { mutableStateOf<ServiceConnection?>(null) }
     var timerService by remember { mutableStateOf<TimerService?>(null) }
+
+    val timerViewModel : WatchViewModel by lazy { WatchViewModel.getInstance() }
+    val activeTimer by timerViewModel.activeTimer.collectAsState()
+    val time by timerViewModel.time.collectAsState()
+    val timerSetting by timerViewModel.setting.collectAsState()
 
     DisposableEffect(Unit) {
         // 1. ServiceConnection 객체 정의
@@ -79,7 +86,7 @@ fun DualStopwatchApp(
                     override fun onTimerTick(timerWorkTime: Int, timerRestTime: Int, timerActiveStopwatch: Int) {
                         workTimer = timerWorkTime
                         restTimer = timerRestTime
-                        activeStopwatch = timerActiveStopwatch
+                        timerViewModel.setActiveTimer(timerActiveStopwatch)
                     }
                 })
             }
@@ -120,13 +127,14 @@ fun DualStopwatchApp(
     }
 
     fun startStopwatch() {
+
         if (!stopwatchRunning && isStopped) {
             val intent = Intent(context, TimerService::class.java).apply {
                 action = TimerService.ACTION_START
-                putExtra("timerName", timerName)
-                putExtra("workTime", workTime)
-                putExtra("restTime", restTime)
-                putExtra("category", category)
+                putExtra("timerName", timerSetting.name)
+                putExtra("workTime", timerSetting.workTime)
+                putExtra("restTime", timerSetting.workTime)
+                putExtra("category", timerSetting.category)
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -149,7 +157,7 @@ fun DualStopwatchApp(
             }
             context.startService(intent)
 
-            activeStopwatch = if (activeStopwatch == 1) 2 else 1
+            timerViewModel.setActiveTimer(if (activeTimer ==1) 2 else 1)
         }
     }
 
@@ -172,23 +180,13 @@ fun DualStopwatchApp(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        var currentTimer = 0
-        var maxTime = 0
-
-        if (activeStopwatch == 1) {
-            currentTimer = workTimer
-            maxTime = workTime
-        } else {
-            currentTimer = restTimer
-            maxTime = restTime
-        }
 
         StopwatchUI(
             modifier = Modifier.size(300.dp),
             isChecked = isChecked,
-            activeTimer = activeStopwatch,
-            elapsedTime = currentTimer,
-            maxTime = maxTime
+            timerSetting = timerSetting,
+            activeTimer = activeTimer,
+            time = time
         )
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -218,7 +216,7 @@ fun DualStopwatchApp(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = timerName, fontSize = 20.sp)
+            Text(text = timerSetting.name, fontSize = 20.sp)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(text = "숫자 표시", fontSize = 20.sp)
                 Switch(
@@ -255,16 +253,21 @@ fun DualStopwatchApp(
     }
 }
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun StopwatchUI(
-    elapsedTime: Int,
-    activeTimer: Int,
-    maxTime: Int,
     modifier: Modifier = Modifier,
-    isChecked: Boolean
+    isChecked: Boolean,
+    activeTimer : Int,
+    time : Int,
+    timerSetting: TimerSetting
 ) {
+    val viewModel : WatchViewModel by lazy { WatchViewModel.getInstance() }
+
+    val maxTime =if( activeTimer == 1 ) timerSetting.workTime else timerSetting.restTime
+
     Box(contentAlignment = Alignment.Center, modifier = modifier) {
-        var step : Float = 0f
+        var step = 0f
         Canvas(modifier = modifier) {
             val strokeWidth = 50f
             val radius = size.minDimension / 2 - strokeWidth / 5
@@ -278,7 +281,7 @@ fun StopwatchUI(
 
             // 진행 원 그리기 (경과 시간)
             var sweepAngle = if (maxTime > 0) {
-                Math.min(360f,(360f/3 * (elapsedTime*3 / maxTime)))
+                Math.min(360f,(360f/3 * (time*3 / maxTime)))
             } else {
                 0f
             }
@@ -304,7 +307,7 @@ fun StopwatchUI(
         if (isChecked) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = "${elapsedTime / 60}:${(elapsedTime % 60).toString().padStart(2, '0')}",
+                    text = "${time / 60}:${(time % 60).toString().padStart(2, '0')}",
                     fontSize = 40.sp,
                     fontWeight = FontWeight.Bold,
                     color = if (activeTimer == 1) Color.Black else Color.Gray,
