@@ -68,5 +68,5 @@ dependencies {
 
     implementation (libs.ycharts)
     implementation(libs.gson)
-
+    implementation(project(":shared"))
 }

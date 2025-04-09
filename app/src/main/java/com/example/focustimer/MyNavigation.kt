@@ -65,6 +65,7 @@ fun MyBottomNavi(navController: NavHostController = rememberNavController()) {
                                 navController.navigate("main") {
                                     popUpTo(navController.graph.findStartDestination().id) {
                                         saveState = true
+
                                     }
                                     launchSingleTop = true
                                     restoreState = true

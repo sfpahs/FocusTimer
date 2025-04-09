@@ -35,19 +35,20 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.focustimer.LocalNavController
-import com.example.focustimer.loadUserName
-import com.example.focustimer.logOut
-import com.example.focustimer.model.AppTimerViewModel
-import com.example.focustimer.model.TimerSetting
-import com.example.focustimer.watchModel.WatchData
-import com.example.focustimer.watchModel.WatchViewModel
+import com.example.shared.loadUserName
+import com.example.shared.logOut
+import com.example.shared.watchModel.TimerSetting
+import com.example.shared.watchModel.WatchData
+import com.example.shared.watchModel.WatchViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Preview
 @Composable
-fun MainPage( viewModel: AppTimerViewModel = viewModel()) {
+fun MainPage() {
+
+    val viewModel : WatchViewModel by lazy { WatchViewModel.getInstance() }
     val context = LocalContext.current
     val navHostController = LocalNavController.current
     val user = FirebaseAuth.getInstance().currentUser
@@ -102,7 +103,9 @@ fun MainPage( viewModel: AppTimerViewModel = viewModel()) {
 
             if (user != null) {
 
-                loadUserName(uid = user.uid, onComplete = {name -> userName = name!! })
+                com.example.shared.loadUserName(
+                    uid = user.uid,
+                    onComplete = { name -> userName = name!! })
                 if(!userName.equals("")) Text(text = userName + " 님")
             }
 
@@ -110,7 +113,7 @@ fun MainPage( viewModel: AppTimerViewModel = viewModel()) {
         }
         Log.i("main", "MainPage: ${userName}")
         Button(
-            onClick = { logOut(context = context)
+            onClick = { com.example.shared.logOut(context = context)
             navHostController.navigate("signin")}
         ) { Text(text = "Log out")}
     }
@@ -118,7 +121,7 @@ fun MainPage( viewModel: AppTimerViewModel = viewModel()) {
     user?.let {
         scope.launch {
             viewModel.loadTimerSettings(it.uid)
-            loadUserName(it.uid) { name ->
+            com.example.shared.loadUserName(it.uid) { name ->
                 userName = name ?: ""
             }
             delay(1000)
@@ -130,7 +133,7 @@ fun MainPage( viewModel: AppTimerViewModel = viewModel()) {
     LoadingScreen(isLoading = isLoading)
 }
 @Composable
-fun myBox(modifier: Modifier, navHostController: NavHostController, timerSetting: TimerSetting){
+fun myBox(modifier: Modifier, navHostController: NavHostController, timerSetting: com.example.shared.watchModel.TimerSetting){
     val navController = rememberNavController()
     val timerViewModel : WatchViewModel by lazy { WatchViewModel.getInstance() }
     Column (modifier = modifier

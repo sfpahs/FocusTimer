@@ -43,14 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.focustimer.MainActivity.Companion.timerStoppedReceiver
-import com.example.focustimer.model.TimerSetting
-import com.example.focustimer.watchModel.WatchViewModel
-import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.example.shared.watchModel.WatchViewModel
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
@@ -69,10 +62,10 @@ fun DualStopwatchApp(
     var serviceConnection by remember { mutableStateOf<ServiceConnection?>(null) }
     var timerService by remember { mutableStateOf<TimerService?>(null) }
 
-    val timerViewModel : WatchViewModel by lazy { WatchViewModel.getInstance() }
-    val activeTimer by timerViewModel.activeTimer.collectAsState()
-    val time by timerViewModel.time.collectAsState()
-    val timerSetting by timerViewModel.setting.collectAsState()
+    val viewModel : WatchViewModel by lazy { WatchViewModel.getInstance() }
+    val activeTimer by viewModel.activeTimer.collectAsState()
+    val time by viewModel.time.collectAsState()
+    val timerSetting by viewModel.setting.collectAsState()
 
     DisposableEffect(Unit) {
         // 1. ServiceConnection 객체 정의
@@ -86,7 +79,7 @@ fun DualStopwatchApp(
                     override fun onTimerTick(timerWorkTime: Int, timerRestTime: Int, timerActiveStopwatch: Int) {
                         workTimer = timerWorkTime
                         restTimer = timerRestTime
-                        timerViewModel.setActiveTimer(timerActiveStopwatch)
+                        viewModel.setActiveTimer(timerActiveStopwatch)
                     }
                 })
             }
@@ -157,7 +150,7 @@ fun DualStopwatchApp(
             }
             context.startService(intent)
 
-            timerViewModel.setActiveTimer(if (activeTimer ==1) 2 else 1)
+            viewModel.setActiveTimer(if (activeTimer ==1) 2 else 1)
         }
     }
 
@@ -260,7 +253,7 @@ fun StopwatchUI(
     isChecked: Boolean,
     activeTimer : Int,
     time : Int,
-    timerSetting: TimerSetting
+    timerSetting: com.example.shared.watchModel.TimerSetting
 ) {
     val viewModel : WatchViewModel by lazy { WatchViewModel.getInstance() }
 

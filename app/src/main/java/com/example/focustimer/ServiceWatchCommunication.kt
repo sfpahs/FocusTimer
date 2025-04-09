@@ -1,18 +1,13 @@
 package com.example.focustimer
 
 import android.app.Service
-import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
-import android.content.ServiceConnection
 import android.os.Binder
 import android.os.IBinder
 import android.util.Log
 import androidx.navigation.NavHostController
-import com.example.focustimer.watchModel.WatchData
-import com.example.focustimer.watchModel.WatchViewModel
-import com.google.android.gms.wearable.DataClient
-import com.google.android.gms.wearable.DataEventBuffer
+import com.example.shared.watchModel.WatchData
+import com.example.shared.watchModel.WatchViewModel
 import com.google.android.gms.wearable.MessageClient
 import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.PutDataMapRequest
@@ -95,9 +90,6 @@ class ServiceWatchCommunication : Service(), MessageClient.OnMessageReceivedList
                 val jsonWatchData = gson.toJson(watchData)
                 val request = PutDataMapRequest.create("/timer_status").apply {
                     dataMap.putString("watch_data_json",jsonWatchData)
-//                    dataMap.putString("timer_name", setting.name)
-//                    dataMap.putInt("active_stopwatch", active)
-//                    dataMap.putInt("time",time)
                 }
 
                 val putDataReq = request.asPutDataRequest()

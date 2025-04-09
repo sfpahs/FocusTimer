@@ -9,16 +9,15 @@ import android.app.Service
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.provider.Settings
 import android.util.Log
-import androidx.compose.runtime.collectAsState
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
-import com.example.focustimer.model.HistoryData
-import com.example.focustimer.watchModel.WatchViewModel
+import com.example.shared.watchModel.WatchViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -42,6 +41,21 @@ class TimerService : Service() {
     var setting = viewModel.setting.value
     var time = viewModel.time.value
     var activeTimer = viewModel.activeTimer.value
+
+    private lateinit var myService: ServiceWatchCommunication
+    private var bound = false
+    private val connection = object : ServiceConnection{
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            val binder = service as ServiceWatchCommunication.LocalBinder
+            myService = binder.getService()
+            bound = true
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            bound = false
+        }
+
+    }
     // 콜백 인터페이스 정의
     interface TimerCallback {
         fun onTimerTick(workTimer: Int, restTimer: Int, activeStopwatch: Int)
@@ -126,13 +140,14 @@ class TimerService : Service() {
             val channel = NotificationChannel(
                 CHANNEL_ID,
                 "Timer Service Channel",
-                NotificationManager.IMPORTANCE_HIGH
-            )
-            channel.description = "타이머 알림 채널"
-            channel.enableLights(false)
-            channel.enableVibration(false)
-            channel.setSound(null, null) // 소리 비활성화
-
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = "타이머 알림 채널"
+                enableLights(false)
+                enableVibration(false)
+                setSound(null, null) // 소리 비활성화
+                setShowBadge(false) // 뱃지 비활성화
+            }
             val manager = getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(channel)
         }
@@ -170,7 +185,7 @@ class TimerService : Service() {
         totalWorkTime /= 60
         totalRestTime /= 60
 
-        val historyData = HistoryData(
+        val historyData = com.example.shared.HistoryData(
             startTime = startTime,
             category = setting.category,
             totalMinute = totalWorkTime + totalRestTime,
@@ -181,7 +196,7 @@ class TimerService : Service() {
 
         val user = FirebaseAuth.getInstance().currentUser
         user?.let {
-            saveHistoryData(historyData, it.uid)
+            com.example.shared.saveHistoryData(historyData, it.uid)
         }
 
         Log.d("TAG", "onReceive: 리시버던짐")
@@ -218,6 +233,10 @@ class TimerService : Service() {
             while (isRunning) {
                 delay(1000L)
                 viewModel.increaceTimer()
+                if (bound){
+                    myService.sendTimerStatusToWatch()
+                }
+
 
                 updateNotification()
             }
@@ -316,12 +335,25 @@ class TimerService : Service() {
         super.onCreate()
         createNotificationChannel()
         checkAndRequestPermissions()
+        bindWatchCommunicationService()
     }
 
     override fun onDestroy() {
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.cancel(NOTIFICATION_ID)
         timerJob?.cancel()
+        unBindWatchCommunicationService()
         super.onDestroy()
+    }
+
+    private fun bindWatchCommunicationService() {
+        val intent = Intent(this, ServiceWatchCommunication::class.java)
+        bindService(intent, connection, Context.BIND_AUTO_CREATE)
+    }
+    private fun unBindWatchCommunicationService() {
+        if (bound) {
+            unbindService(connection)
+            bound = false
+        }
     }
 }

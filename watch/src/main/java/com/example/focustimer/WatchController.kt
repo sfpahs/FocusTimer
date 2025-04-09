@@ -26,9 +26,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.Text
-import com.example.focustimer.model.AppTimerViewModel
-import com.google.android.gms.wearable.DataEvent
-import com.google.android.gms.wearable.DataMapItem
+import com.example.shared.watchModel.WatchViewModel
 import com.google.android.gms.wearable.MessageClient
 import com.google.android.gms.wearable.Wearable
 import kotlinx.coroutines.CoroutineScope
@@ -36,28 +34,37 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.coroutines.resume
 import com.google.android.gms.tasks.Task
+import com.google.android.gms.wearable.CapabilityClient
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import kotlin.coroutines.resumeWithException
+
 @Preview(widthDp = 200, heightDp = 200)
 @Composable
 fun WatchTimerControl(navController: NavHostController = rememberNavController()) {
     val context = LocalContext.current
     var isConnected by remember { mutableStateOf(false) }
-    var currentTimerName by remember { mutableStateOf("") }
-    var activeStopwatch by remember { mutableStateOf(1) }
 
-    val viewModel: AppTimerViewModel by lazy { AppTimerViewModel.getInstance() }
-    val timerInfo by viewModel.timerInfo.collectAsState()
-    val activeTimer by viewModel.activateTimer.collectAsState()
-    val timerSetting by viewModel.currentTimerSetting.collectAsState()
+    val viewModel by lazy { WatchViewModel.getInstance() }
+    val timerSetting by viewModel.setting.collectAsState()
+    val activeTimer by viewModel.activeTimer.collectAsState()
+    val time by viewModel.time.collectAsState()
+
     // 데이터 레이어 클라이언트 초기화
     val messageClient = Wearable.getMessageClient(context)
-    val currentTime : Int =
-        if (activeTimer.equals(1) == true) timerInfo.workingMinute
-        else timerInfo.restMinute
+    val nodeClient = Wearable.getNodeClient(context)
+
+    val currentTime : Int = time
     val currentMaxTime =
         if(activeTimer.equals(1)) timerSetting.workTime
         else timerSetting.restTime
+
+    // 컴포저블이 처음 생성될 때 연결 상태 확인
+    LaunchedEffect(Unit) {
+        checkConnectionStatus(nodeClient) { connected ->
+            isConnected = connected
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -65,20 +72,10 @@ fun WatchTimerControl(navController: NavHostController = rememberNavController()
             .padding(8.dp),
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally
-
     ) {
-        if(currentTimerName.isNotEmpty()){
-
+        if(timerSetting.name.isNotEmpty()){
             Text(
-                text = "$currentTimerName",
-                fontSize = 16.sp,
-                color = if (isConnected) Color.White else Color.Gray
-            )
-
-        }
-        else{
-            Text(
-                text = "연결 중...",
+                text = timerSetting.name,
                 fontSize = 16.sp,
                 color = if (isConnected) Color.White else Color.Gray
             )
@@ -87,15 +84,23 @@ fun WatchTimerControl(navController: NavHostController = rememberNavController()
                 fontSize = 16.sp,
                 color = if (isConnected) Color.White else Color.Gray
             )
-
+        }
+        else{
+            Text(
+                text = if (isConnected) "연결됨" else "연결 중...",
+                fontSize = 16.sp,
+                color = if (isConnected) Color.White else Color.Gray
+            )
         }
 
         Row {
-
             Button(
                 onClick = {
-                    sendMessageToPhone(messageClient, "/timer_action", "switch")
+                    if (isConnected) {
+                        sendMessageToPhone(messageClient, "/timer_action", "switch")
+                    }
                 },
+                enabled = isConnected
             ) {
                 Text("전환")
             }
@@ -104,32 +109,31 @@ fun WatchTimerControl(navController: NavHostController = rememberNavController()
 
             Button(
                 onClick = {
-                    sendMessageToPhone(messageClient, "/timer_action", "stop")
+                    if (isConnected) {
+                        sendMessageToPhone(messageClient, "/timer_action", "stop")
+                    }
                 },
+                enabled = isConnected
             ) {
                 Text("종료")
             }
         }
-
-
-
     }
+}
 
-    // 데이터 수신 리스너 설정
-    LaunchedEffect(Unit) {
-        val dataClient = Wearable.getDataClient(context)
-
-        dataClient.addListener { dataEvents ->
-            dataEvents.forEach { event ->
-                if (event.type == DataEvent.TYPE_CHANGED) {
-                    val dataItem = event.dataItem
-                    if (dataItem.uri.path == "/timer_status") {
-                        val dataMap = DataMapItem.fromDataItem(dataItem).dataMap
-                        isConnected = true
-                        currentTimerName = dataMap.getString("timer_name", "")
-                        activeStopwatch = dataMap.getInt("active_stopwatch", 1)
-                    }
-                }
+// 연결 상태를 확인하는 함수
+private fun checkConnectionStatus(nodeClient: com.google.android.gms.wearable.NodeClient, callback: (Boolean) -> Unit) {
+    CoroutineScope(Dispatchers.IO).launch {
+        try {
+            val nodes = nodeClient.connectedNodes.await()
+            val connected = nodes.isNotEmpty()
+            withContext(Dispatchers.Main) {
+                callback(connected)
+            }
+        } catch (e: Exception) {
+            Log.e("WatchApp", "연결 상태 확인 실패: ${e.message}")
+            withContext(Dispatchers.Main) {
+                callback(false)
             }
         }
     }

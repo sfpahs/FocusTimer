@@ -36,8 +36,7 @@ import co.yml.charts.ui.barchart.models.BarStyle
 import co.yml.charts.ui.barchart.models.GroupBar
 import co.yml.charts.ui.barchart.models.GroupBarChartData
 import co.yml.charts.ui.barchart.models.SelectionHighlightData
-import com.example.focustimer.model.AppTimerViewModel
-import com.example.focustimer.model.TimerSetting
+import com.example.shared.watchModel.WatchViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -47,8 +46,9 @@ import java.util.TimeZone
 
 @Preview
 @Composable
-fun weekHistoryApp( viewModel: AppTimerViewModel = viewModel()){
+fun weekHistoryApp(){
     val user = FirebaseAuth.getInstance().currentUser
+    val viewModel by lazy { WatchViewModel.getInstance() }
     var isLoading by remember { mutableStateOf(true) }
     val timerSettings by viewModel.timerSettings.collectAsState()
     val scope = rememberCoroutineScope()
@@ -103,7 +103,7 @@ fun weekHistoryApp( viewModel: AppTimerViewModel = viewModel()){
 }
 
 //그래프관련
-fun weekHistoryGraph(timerSettings : List<TimerSetting>, callback: (Pair<LegendsConfig, GroupBarChartData>) -> Unit) {
+fun weekHistoryGraph(timerSettings : List<com.example.shared.watchModel.TimerSetting>, callback: (Pair<LegendsConfig, GroupBarChartData>) -> Unit) {
     val barSize = 5      // 각 그룹에 포함될 바의 개수 (3개 카테고리)
     val listSize = 7    // 차트에 표시할 그룹(X축 데이터 포인트)의 개수
     val yStepSize = 8
@@ -206,7 +206,10 @@ fun myLocalTime() : LocalDateTime{
 }
 private fun createCustomGroupBarData(listSize: Int, barSize: Int, callback: (List<GroupBar>) -> Unit) {
     val uid = FirebaseAuth.getInstance().uid
-    loadWeekHistoryData(uid = uid!!, today = LocalDateTime.now(ZoneId.of("Asia/Seoul"))) { data ->
+    com.example.shared.loadWeekHistoryData(
+        uid = uid!!,
+        today = LocalDateTime.now(ZoneId.of("Asia/Seoul"))
+    ) { data ->
         val groupBarList = mutableListOf<GroupBar>()
         val timeZone = TimeZone.getDefault()
         for (i in 0 until listSize) {
@@ -217,9 +220,9 @@ private fun createCustomGroupBarData(listSize: Int, barSize: Int, callback: (Lis
                 for (j in 0 until data[i].size) {
                     barList.add(
                         BarData(
-                            point = Point(x = i.toFloat(), y = data[i][j].first.toFloat()/3/60),
-                            label = "Category ${j+1}",
-                            description = "${daysOfWeek[i]}, Category ${j+1}: ${data[i][j].first}"
+                            point = Point(x = i.toFloat(), y = data[i][j].first.toFloat() / 3 / 60),
+                            label = "Category ${j + 1}",
+                            description = "${daysOfWeek[i]}, Category ${j + 1}: ${data[i][j].first}"
                         )
                     )
                 }

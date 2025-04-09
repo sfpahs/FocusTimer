@@ -1,40 +1,38 @@
-package com.example.focustimer.model
+package com.example.shared.watchModel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.focustimer.loadTimerSettingsFireBase
+import com.example.shared.loadTimerSettingsFireBase
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class AppTimerViewModel : ViewModel() {
-    private val _timerSettings = MutableStateFlow<List<TimerSetting>>(emptyList())
-    val timerSettings: StateFlow<List<TimerSetting>> = _timerSettings
-    private val _timerInfo = MutableStateFlow(HistoryData())
-    val timerInfo: StateFlow<HistoryData> = _timerInfo
-    private val _activateTimer = MutableStateFlow(0)
-    val activateTimer: StateFlow<Int> = _activateTimer
-    private val database = FirebaseDatabase.getInstance().reference
-
-    private val _currentTimerSetting = MutableStateFlow(TimerSetting())
-    val currentTimerSetting: StateFlow<TimerSetting> = _currentTimerSetting
-
-
-
+class WatchViewModel : ViewModel() {
     companion object {
         // 싱글톤 인스턴스
-        private var instance: AppTimerViewModel? = null
+        private var instance: WatchViewModel? = null
         // 인스턴스 가져오기
-        fun getInstance(): AppTimerViewModel {
+        fun getInstance(): WatchViewModel {
             if (instance == null) {
-                instance = AppTimerViewModel()
+                instance = WatchViewModel()
             }
             return instance!!
         }
     }
-    //유저 타이머 설정들
+
+    private val _timerSettings = MutableStateFlow<List<TimerSetting>>(emptyList())
+    val timerSettings: StateFlow<List<TimerSetting>> = _timerSettings
+    private val _setting = MutableStateFlow(TimerSetting())
+    val setting : StateFlow<TimerSetting> = _setting
+
+    private val _activeTimer = MutableStateFlow(0)
+    val activeTimer : StateFlow<Int> = _activeTimer
+    private val _time = MutableStateFlow(0)
+    val time : StateFlow<Int> = _time
+    private val database = FirebaseDatabase.getInstance().reference
+
 
     //현재 타이머 정보
     fun loadTimerSettings(userId: String) {
@@ -65,16 +63,22 @@ class AppTimerViewModel : ViewModel() {
         }
     }
 
+    fun updateWatchInfo(newData : WatchData){
 
-    fun updateTimerSetting ( newTimerSettings: List<TimerSetting> ){
-        _timerSettings.value = newTimerSettings
+        _time.value = newData.time
+        _activeTimer.value = newData.activeTimer
+        _setting.value = newData.timerSetting
     }
-    fun updateCurrentTimer(newTimerSetting: TimerSetting){
-        _currentTimerSetting.value = newTimerSetting
+    fun setActiveTimer(value : Int){
+        _activeTimer.value = value
+        //_watchInfo.value.activeTimer = if(_watchInfo.value.activeTimer == 1) 2 else 1
     }
-    fun updateActiveTimer(newActiveTimer : Int){
-        _activateTimer.value = newActiveTimer
+    fun increaceTimer(){
+        _time.value = time.value + 1
+        Log.d("TAG", "increaceTimer: ${time.value}")
+    }
+    fun resetTimer(){
+        _time.value = 0
     }
 
 }
-

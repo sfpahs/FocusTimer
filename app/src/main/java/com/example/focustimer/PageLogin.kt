@@ -69,15 +69,16 @@ fun LoginScreen() {
             // 로그인 버튼
             Button(
                 onClick = {
-                signInWithEmailAndPassword(email = email, password = password,
-                    onSuccess = {
-                        navHostController.navigate("main")
+                    com.example.shared.signInWithEmailAndPassword(email = email,
+                        password = password,
+                        onSuccess = {
+                            navHostController.navigate("main")
 
 
-                    },
-                    onError = {error ->
-                        Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
-                    })
+                        },
+                        onError = { error ->
+                            Toast.makeText(context, error, Toast.LENGTH_SHORT).show()
+                        })
                 },
                 colors = ButtonDefaults.buttonColors(
 
@@ -179,13 +180,15 @@ fun signupPage() {
             onClick = {
                 if(!isPasswordCorrect(password)) Toast.makeText(context, "비밀번호 6자리 이상 설정해주세요", Toast.LENGTH_SHORT).show()
                 else
-                    checkEmailExists(email = userId){ exist ->
-                        if(exist){
+                    com.example.shared.checkEmailExists(email = userId) { exist ->
+                        if (exist) {
                             Toast.makeText(context, "이미 존재하는 이메일입니다", Toast.LENGTH_SHORT).show()
-                        }
-                        else{
-                            signUp(email = userId, password = password, name = userName, context = context,
-                                onSuccessCallback = {navHostController.navigate("main")},
+                        } else {
+                            com.example.shared.signUp(email = userId,
+                                password = password,
+                                name = userName,
+                                context = context,
+                                onSuccessCallback = { navHostController.navigate("main") },
                                 onFailCallback = { e ->
                                     Log.e("signUpError", "SignupPage: ${e.exception}")
 

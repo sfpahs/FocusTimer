@@ -1,9 +1,10 @@
-package com.example.focustimer
+package com.example.shared
 
 import android.content.Context
+import android.os.Build
 import android.util.Log
-import com.example.focustimer.model.HistoryData
-import com.example.focustimer.model.TimerSetting
+import androidx.annotation.RequiresApi
+import com.example.shared.watchModel.TimerSetting
 import com.google.android.gms.tasks.Task
 import com.google.firebase.Firebase
 import com.google.firebase.auth.AuthResult
@@ -17,11 +18,11 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-//
 class MyFireBase(){
 
     companion object{
         val dataBase = Firebase.database
+        @RequiresApi(Build.VERSION_CODES.O)
         fun getTodayRef(uid: String) : DatabaseReference{
 
             val currentTime = LocalDateTime.now(ZoneId.of("Asia/Seoul"))
@@ -89,6 +90,7 @@ fun checkEmailExists(email: String, callback: (Boolean) -> Unit) {
             }
         }
 }
+@RequiresApi(Build.VERSION_CODES.O)
 fun loadWeekHistoryData(
     uid: String,
     today: LocalDateTime,
@@ -162,6 +164,7 @@ fun loadDateHistoryData(historyRef: DatabaseReference, callback: (List<Pair<Int,
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 fun calcWeekDate(inputDate: String): List<String> {
     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
     val date = LocalDate.parse(inputDate, formatter)
@@ -176,14 +179,16 @@ fun calcWeekDate(inputDate: String): List<String> {
 }
 
 
-fun saveHistoryData(saveData : HistoryData, uid : String){
+@RequiresApi(Build.VERSION_CODES.O)
+fun saveHistoryData(saveData : com.example.shared.HistoryData, uid : String){
     val historyRef = MyFireBase.getTodayRef(uid = uid).push()
     historyRef.setValue(saveData)
         .addOnSuccessListener { Log.i("firebase", "saveHistoryData: save Success")}
         .addOnFailureListener {e ->  Log.e("firebaseError", "saveHistoryData: ${e.message}", ) }
     updateTodayHistoryData(saveData, uid)
 }
-fun updateTodayHistoryData(data: HistoryData, uid : String){
+@RequiresApi(Build.VERSION_CODES.O)
+fun updateTodayHistoryData(data: com.example.shared.HistoryData, uid : String){
     val historyRef = MyFireBase.getTodayRef(uid = uid)
         .child("totalData")
         .child("${data.category}")
@@ -203,17 +208,47 @@ fun updateTodayHistoryData(data: HistoryData, uid : String){
 
 fun saveDefaultUserSettingFireBase(uid: String, name : String, context: Context) {
 
-    val userRef  =MyFireBase.dataBase.getReference("users").child(uid)
+    val userRef  = MyFireBase.dataBase.getReference("users").child(uid)
     val timerSettingsRef = userRef
         .child("settings")
         .child("timer")
 
     val timerSettings = listOf(
-        TimerSetting(0, "공부", context.getColor(R.color.myCategory1).toLong(), 50 * 60, 10 * 60),
-        TimerSetting(1, "운동", context.getColor(R.color.myCategory2).toLong(), 3 * 60, 1 * 60),
-        TimerSetting(2, "독서", context.getColor(R.color.myCategory3).toLong(), 55 * 60, 5 * 60),
-        TimerSetting(3, "취미", context.getColor(R.color.myCategory4).toLong(), 30 * 60, 10 * 60),
-        TimerSetting(4, "영단어", context.getColor(R.color.myCategory5).toLong(),  15* 60, 5 * 60)
+        TimerSetting(
+            0,
+            "공부",
+            context.getColor(R.color.myCategory1).toLong(),
+            50 * 60,
+            10 * 60
+        ),
+        TimerSetting(
+            1,
+            "운동",
+            context.getColor(R.color.myCategory2).toLong(),
+            3 * 60,
+            1 * 60
+        ),
+        TimerSetting(
+            2,
+            "독서",
+            context.getColor(R.color.myCategory3).toLong(),
+            55 * 60,
+            5 * 60
+        ),
+        TimerSetting(
+            3,
+            "취미",
+            context.getColor(R.color.myCategory4).toLong(),
+            30 * 60,
+            10 * 60
+        ),
+        TimerSetting(
+            4,
+            "영단어",
+            context.getColor(R.color.myCategory5).toLong(),
+            15 * 60,
+            5 * 60
+        )
     )
 
     val updates = HashMap<String, Any>()

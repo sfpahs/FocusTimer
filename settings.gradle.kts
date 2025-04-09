@@ -22,3 +22,4 @@ dependencyResolutionManagement {
 rootProject.name = "focusTimer"
 include(":app")
 include(":watch")
+include(":shared")
