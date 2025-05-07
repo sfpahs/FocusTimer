@@ -53,20 +53,17 @@ class ServiceWatchCommunication : Service(), MessageClient.OnMessageReceivedList
         when (messageEvent.path) {
             "/timer_action" -> {
                 var action = String(messageEvent.data)
-                when (action) {
-                    "switch" -> {
-                        val intent = Intent(this, TimerService::class.java).apply {
-                            action = TimerService.ACTION_SWITCH
-                        }
-                        startService(intent)
-                    }
-                    "stop" -> {
-                        val intent = Intent(this, TimerService::class.java).apply {
-                            action = TimerService.ACTION_STOP
-                        }
-                        startService(intent)
+                val serviceIntent = Intent(this, TimerService::class.java).apply {
+                    when (action) {
+                        "switch" -> {
+                            Log.d("watchReceive", "onMessageReceived: switch")
+                            this.action = TimerService.ACTION_SWITCH}
+
+                        "stop" ->
+                            this.action = TimerService.ACTION_STOP
                     }
                 }
+                startService(serviceIntent)
             }
             "/navigation" -> {
                 val destination = String(messageEvent.data)

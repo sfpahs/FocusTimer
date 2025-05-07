@@ -1,3 +1,5 @@
+package com.example.focustimer.Page
+
 import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.Arrangement
@@ -10,15 +12,17 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -28,16 +32,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.focustimer.LocalNavController
-import com.example.shared.loadUserName
-import com.example.shared.logOut
-import com.example.shared.watchModel.TimerSetting
+import com.example.focustimer.R
+import com.example.shared.AnimationPart
 import com.example.shared.watchModel.WatchData
 import com.example.shared.watchModel.WatchViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -77,7 +84,6 @@ fun MainPage() {
                 myBox(
                     modifier = Modifier.aspectRatio(1f),
 
-                    navHostController = navHostController,
                     timerSetting = setting
                 )
             }
@@ -106,7 +112,7 @@ fun MainPage() {
                 com.example.shared.loadUserName(
                     uid = user.uid,
                     onComplete = { name -> userName = name!! })
-                if(!userName.equals("")) Text(text = userName + " 님")
+                if(!userName.equals("")) Text(text = userName + " 님", color = colorResource(R.color.myBlack))
             }
 
 
@@ -133,8 +139,8 @@ fun MainPage() {
     LoadingScreen(isLoading = isLoading)
 }
 @Composable
-fun myBox(modifier: Modifier, navHostController: NavHostController, timerSetting: com.example.shared.watchModel.TimerSetting){
-    val navController = rememberNavController()
+fun myBox(modifier: Modifier, timerSetting: com.example.shared.watchModel.TimerSetting){
+    val navController = LocalNavController.current
     val timerViewModel : WatchViewModel by lazy { WatchViewModel.getInstance() }
     Column (modifier = modifier
         .fillMaxHeight(1f)
@@ -145,6 +151,7 @@ fun myBox(modifier: Modifier, navHostController: NavHostController, timerSetting
         spotColor = Color.Black.copy(alpha = 0.25f)
     )
         .background(
+
             color = Color(timerSetting.backgroundColor),
             shape = RoundedCornerShape(20.dp)
         )
@@ -152,16 +159,16 @@ fun myBox(modifier: Modifier, navHostController: NavHostController, timerSetting
             timerViewModel.updateWatchInfo(
                 newData = WatchData(timerSetting = timerSetting, activeTimer = 1, time = 0)
             )
-            navHostController.navigate("timer") }
+            navController.navigate("timer") }
 
 
 
         ,
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
-        ){ Text(text = timerSetting.name,  fontSize = 25.sp)
-        Text(text = "work: ${timerSetting.workTime/60}분", color = Color.White)
-        Text(text = "rest: ${timerSetting.restTime/60}분", color = Color.White)}
+        ){ Text(text = timerSetting.name,  fontSize = 25.sp, color = colorResource(R.color.myBlack))
+        Text(text = "work: ${timerSetting.workTime/60}분", color = colorResource(R.color.myBlack))
+        Text(text = "rest: ${timerSetting.restTime/60}분", color = colorResource(R.color.myBlack))}
 }
 @Composable
 fun addBox(modifier: Modifier, color : Color,text : String, category : Int, navHostController: NavHostController){
@@ -180,19 +187,4 @@ fun addBox(modifier: Modifier, color : Color,text : String, category : Int, navH
         horizontalAlignment = Alignment.CenterHorizontally
     ){ Text(text = text, color = Color.White, fontSize = 25.sp)}
 }
-
-@Composable
-fun LoadingScreen(isLoading: Boolean) {
-    if (isLoading) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.White),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator()
-        }
-    }
-}
-
 

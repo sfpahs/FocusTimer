@@ -1,4 +1,4 @@
-package com.example.focustimer
+package com.example.focustimer.Page
 
 import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
@@ -42,7 +42,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.focustimer.MainActivity.Companion.timerStoppedReceiver
+import com.example.focustimer.LocalNavController
+import com.example.focustimer.Activity.MainActivity.Companion.timerStoppedReceiver
+import com.example.focustimer.TimerService
 import com.example.shared.watchModel.WatchViewModel
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)

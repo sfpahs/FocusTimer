@@ -13,6 +13,7 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.database
+import kotlinx.coroutines.coroutineScope
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -192,7 +193,6 @@ fun updateTodayHistoryData(data: com.example.shared.HistoryData, uid : String){
     val historyRef = MyFireBase.getTodayRef(uid = uid)
         .child("totalData")
         .child("${data.category}")
-
     var loadData : Pair<Int, Int> = Pair(0,0)
     loadTodayHistoryData(historyRef){x -> loadData = x
         val saveData = Pair(loadData.first + data.workingMinute, loadData.second + data.restMinute)
@@ -216,37 +216,23 @@ fun saveDefaultUserSettingFireBase(uid: String, name : String, context: Context)
     val timerSettings = listOf(
         TimerSetting(
             0,
-            "공부",
+            "암기",
             context.getColor(R.color.myCategory1).toLong(),
             50 * 60,
             10 * 60
         ),
         TimerSetting(
             1,
-            "운동",
+            "연산",
             context.getColor(R.color.myCategory2).toLong(),
             3 * 60,
             1 * 60
         ),
         TimerSetting(
             2,
-            "독서",
+            "이해",
             context.getColor(R.color.myCategory3).toLong(),
             55 * 60,
-            5 * 60
-        ),
-        TimerSetting(
-            3,
-            "취미",
-            context.getColor(R.color.myCategory4).toLong(),
-            30 * 60,
-            10 * 60
-        ),
-        TimerSetting(
-            4,
-            "영단어",
-            context.getColor(R.color.myCategory5).toLong(),
-            15 * 60,
             5 * 60
         )
     )

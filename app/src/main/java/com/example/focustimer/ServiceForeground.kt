@@ -17,6 +17,8 @@ import android.provider.Settings
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import com.example.focustimer.Activity.MainActivity
+import com.example.focustimer.utils.MyIntents
 import com.example.shared.watchModel.WatchViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
@@ -122,16 +124,20 @@ class TimerService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         // 서비스 시작 시 즉시 포그라운드로 전환
+        Log.d("StartService", "onStartCommand: ${intent?.action}")
         startForeground(NOTIFICATION_ID, createNotification())
-        when (intent?.action) {
-            ACTION_START -> {
-                startTimer()
-            }
-            ACTION_PAUSE -> pauseTimer()
-            ACTION_STOP -> stopTimer()
-            ACTION_SWITCH -> switchTimer()
-        }
 
+        intent?.action?.let {
+            when (it) {
+                ACTION_START -> {
+                    startTimer()
+                }
+                ACTION_PAUSE -> pauseTimer()
+                ACTION_SWITCH -> switchTimer()
+                ACTION_STOP -> stopTimer()
+                // 기타 액션 처리...
+            }
+        }
         return START_STICKY
     }
 
@@ -201,7 +207,7 @@ class TimerService : Service() {
 
         Log.d("TAG", "onReceive: 리시버던짐")
         // 브로드캐스트 전송 - UI에 타이머 종료 알림
-        val broadcastIntent = Intent("com.example.pre_capstone.TIMER_STOPPED")
+        val broadcastIntent = Intent(ACTION_STOP)
         broadcastIntent.putExtra("navigate_to_main", true)
         broadcastIntent.flags = Intent.FLAG_INCLUDE_STOPPED_PACKAGES
         sendBroadcast(broadcastIntent)
@@ -213,16 +219,19 @@ class TimerService : Service() {
     private fun switchTimer() {
         timerJob?.cancel()
 
-        viewModel.setActiveTimer(if (activeTimer == 1) {
+        viewModel.setActiveTimer(
+            if (activeTimer == 1) {
             totalWorkTime += time
             viewModel.resetTimer()
             2
-        } else {
+        }
+            else {
             totalRestTime += time
             workCount++
             viewModel.resetTimer()
             1
-        })
+        }
+        )
 
         startTimerJob()
         updateNotification()
@@ -244,44 +253,18 @@ class TimerService : Service() {
     }
 
 
-
-
-
-
-
-
     private fun createNotification(): Notification {
 
         setting = viewModel.setting.value
         time = viewModel.time.value
         activeTimer = viewModel.activeTimer.value
+
         // 알림 바디 클릭 시 앱 실행 인텐트
-        val notificationIntent = Intent(this, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-        }
-        val pendingIntent = PendingIntent.getActivity(
-            this, 0, notificationIntent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
-
+        val pendingIntent = MyIntents.getNotificationIntent(this)
         // 스위치 버튼 인텐트
-        val switchIntent = Intent(this, TimerService::class.java).apply {
-            action = ACTION_SWITCH
-        }
-        val switchPendingIntent = PendingIntent.getService(
-            this, 1, switchIntent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
-
+        val switchPendingIntent = MyIntents.getSwitchWatchIntent(this);
         // 종료 버튼 인텐트 - 앱을 실행하지 않고 서비스만 종료하는 특별 인텐트
-        val stopIntent = Intent(this, TimerService::class.java).apply {
-            action = ACTION_STOP
-        }
-        val stopPendingIntent = PendingIntent.getService(
-            this, 2, stopIntent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
-
+        val stopPendingIntent = MyIntents.getStopWatchIntent(this)
 
         val maxTime = if (activeTimer == 1) setting.workTime else setting.restTime
         val timerText = "${time / 60}:${(time % 60).toString().padStart(2, '0')} / ${maxTime / 60}:${(maxTime % 60).toString().padStart(2, '0')}"
@@ -356,4 +339,9 @@ class TimerService : Service() {
             bound = false
         }
     }
+
+
+
+
+
 }

@@ -75,12 +75,12 @@ fun WatchTimerControl(navController: NavHostController = rememberNavController()
     ) {
         if(timerSetting.name.isNotEmpty()){
             Text(
-                text = timerSetting.name,
+                text = "${timerSetting.name}:${currentMaxTime/60}",
                 fontSize = 16.sp,
                 color = if (isConnected) Color.White else Color.Gray
             )
             Text(
-                text = "$currentTime / $currentMaxTime",
+                text = "$currentTime",
                 fontSize = 16.sp,
                 color = if (isConnected) Color.White else Color.Gray
             )

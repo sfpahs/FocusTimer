@@ -1,11 +1,10 @@
 package com.example.focustimer
-import MainPage
-import android.content.BroadcastReceiver
+import com.example.focustimer.Page.MainPage
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.Icon
@@ -22,15 +21,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavController
+import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
+import com.example.focustimer.Page.DualStopwatchApp
+import com.example.focustimer.Page.LoginScreen
+import com.example.focustimer.Page.signupPage
+import com.example.focustimer.Page.weekHistoryApp
+import com.example.focustimer.survery.SurveyScreen
 import com.google.firebase.auth.FirebaseAuth
 
 
@@ -45,7 +49,7 @@ fun MyBottomNavi(navController: NavHostController = rememberNavController()) {
     val user = FirebaseAuth.getInstance().currentUser
     val startPage = if(user != null) "main" else "signin"
     CompositionLocalProvider(LocalNavController provides navController) {
-        val currentRoute = navController.currentBackStackEntryAsState()?.value?.destination?.route
+        val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
 
         Scaffold(
             bottomBar ={
@@ -56,9 +60,28 @@ fun MyBottomNavi(navController: NavHostController = rememberNavController()) {
                     ) {
                         val navBackStackEntry by navController.currentBackStackEntryAsState()
                         val currentDestination = navBackStackEntry?.destination
-
+                        //아이콘 , 텍스트 루트,
                         NavigationBarItem(
-                            icon = { Icon(Icons.Filled.Home, contentDescription = "Home") },
+                            icon = { Icon(imageVector =  Icons.Filled.DateRange, contentDescription = "Date") },
+                            label = { Text("Date") },
+                            selected = currentDestination?.hierarchy?.any { it.route == "date" } == true,
+                            onClick = {
+                                navController.navigate("date") {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            },
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = colorResource(R.color.black),
+                                unselectedIconColor = Color.Gray
+                            )
+                        )
+                        NavigationBarItem(
+                            icon = { Icon(imageVector =  Icons.Filled.Home, contentDescription = "Home") },
                             label = { Text("Main") },
                             selected = currentDestination?.hierarchy?.any { it.route == "main" } == true,
                             onClick = {
@@ -106,8 +129,8 @@ fun MyBottomNavi(navController: NavHostController = rememberNavController()) {
 
             NavHost(navController, startDestination = startPage, Modifier.padding(innerPadding)) {
                 composable("main") { MainPage() }
-                composable("history") {
-                    weekHistoryApp() }
+                composable("date") { SurveyScreen() }
+                composable("history") { weekHistoryApp() }
                 composable("signup") { signupPage() }
                 composable("signin") { LoginScreen() }
                 composable("timer") { DualStopwatchApp() }
@@ -117,5 +140,4 @@ fun MyBottomNavi(navController: NavHostController = rememberNavController()) {
     }
 
 }
-
 

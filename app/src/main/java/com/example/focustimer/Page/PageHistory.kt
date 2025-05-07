@@ -1,6 +1,5 @@
-package com.example.focustimer
+package com.example.focustimer.Page
 
-import LoadingScreen
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -22,10 +21,10 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import co.yml.charts.axis.AxisData
 import co.yml.charts.common.components.Legends
 import co.yml.charts.common.extensions.getMaxElementInYAxis
+import co.yml.charts.common.extensions.isNotNull
 import co.yml.charts.common.model.LegendLabel
 import co.yml.charts.common.model.LegendsConfig
 import co.yml.charts.common.model.Point
@@ -53,7 +52,9 @@ fun weekHistoryApp(){
     val timerSettings by viewModel.timerSettings.collectAsState()
     val scope = rememberCoroutineScope()
     var graphSetting by remember { mutableStateOf<Pair<LegendsConfig, GroupBarChartData>?>(null) }
-    //todo 이후에 weekHistoryGraph에 세팅넣어서 색상하고 기록데이터 들고와서 그래프그리기
+    // TODO: 이후에 weekHistoryGraph에 세팅넣어서 색상하고 기록데이터 들고와서 그래프그리기
+    // FIXME: 이거 해결해라 임마
+
 
     if(timerSettings.isEmpty()){
         Column(modifier = Modifier.fillMaxSize(),
@@ -65,15 +66,13 @@ fun weekHistoryApp(){
         }
     }
     else {
-
         weekHistoryGraph(timerSettings){ x->
             graphSetting = Pair<LegendsConfig, GroupBarChartData>(x.first, x.second)
             isLoading = false
 
         }
-        if(graphSetting!=null&&!isLoading){
-            Column(
-                Modifier
+        if(graphSetting.isNotNull()&&!isLoading){
+            Column(modifier = Modifier
                     .fillMaxSize()
                     .background(color = Color.White),
                 verticalArrangement = Arrangement.Center
@@ -88,7 +87,7 @@ fun weekHistoryApp(){
                 )
             }
         }
-        else Text("로딩 중...")
+        else LoadingScreen(isLoading = isLoading)
 
     }
     user?.let {
@@ -99,7 +98,7 @@ fun weekHistoryApp(){
 
     }
 
-    LoadingScreen(isLoading = isLoading)
+    //LoadingScreen(isLoading = isLoading)
 }
 
 //그래프관련
@@ -154,7 +153,8 @@ fun weekHistoryGraph(timerSettings : List<com.example.shared.watchModel.TimerSet
                 (index * (maxElementInYAxis / yStepSize)).toString()
 
             }
-            .topPadding(36.dp)             // 상단 여백
+            .topPadding(36.dp)
+            .backgroundColor(Color.White)// 상단 여백
             .build()
 
         val groupBarPlotData = BarPlotData(
@@ -198,12 +198,6 @@ fun weekHistoryGraph(timerSettings : List<com.example.shared.watchModel.TimerSet
 
 }
 
-fun myLocalTime() : LocalDateTime{
-    val zoneId = ZoneId.systemDefault()
-// 해당 시간대의 현재 시간 가져오기
-    val currentTime = LocalDateTime.now(zoneId)
-    return currentTime
-}
 private fun createCustomGroupBarData(listSize: Int, barSize: Int, callback: (List<GroupBar>) -> Unit) {
     val uid = FirebaseAuth.getInstance().uid
     com.example.shared.loadWeekHistoryData(

@@ -1,4 +1,4 @@
-package com.example.focustimer
+package com.example.focustimer.Activity
 
 import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
@@ -15,6 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.focustimer.MyBottomNavi
+import com.example.focustimer.Page.TimerStoppedReceiver
 import com.example.focustimer.ui.theme.FocusTimerTheme
 
 class MainActivity : ComponentActivity() {
@@ -52,21 +54,5 @@ class MainActivity : ComponentActivity() {
                 MyBottomNavi(navController = navController)
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    FocusTimerTheme {
-        Greeting("Android")
     }
 }

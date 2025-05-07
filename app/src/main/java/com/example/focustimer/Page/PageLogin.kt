@@ -1,6 +1,7 @@
-package com.example.focustimer
+package com.example.focustimer.Page
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
@@ -16,8 +17,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.focustimer.LocalNavController
+import com.example.focustimer.R
+import com.example.focustimer.utils.Dimens
 
 @Composable
 fun LoginScreen() {
@@ -39,8 +44,11 @@ fun LoginScreen() {
             .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center){
-            Text("로그인", fontSize = 25.sp)
-
+            Image(
+                painter = painterResource(id = R.drawable.ic_book_fire),
+                contentDescription = "샘플 이미지",
+                modifier = Modifier.size(200.dp)
+            )
             Spacer(modifier = Modifier.height(32.dp))
 
             // 이메일 입력창
@@ -88,7 +96,7 @@ fun LoginScreen() {
                     .fillMaxWidth()
                     .height(50.dp)
             ) {
-                Text("로그인", fontSize = 20.sp, color = colorResource(R.color.myBlack))
+                Text("로그인", fontSize = Dimens.mainFontSize, color = colorResource(R.color.myBlack))
             }
             Spacer(modifier = Modifier.height(32.dp))
             Button(
@@ -101,7 +109,7 @@ fun LoginScreen() {
                     .fillMaxWidth()
                     .height(50.dp)
             ) {
-                Text("회원가입", fontSize = 20.sp, color = colorResource(R.color.myBlack))
+                Text("회원가입", fontSize = Dimens.mainFontSize, color = colorResource(R.color.myBlack))
             }
         }
     }
@@ -129,7 +137,7 @@ fun signupPage() {
             //todo 아이콘으로 변경할것
             Text(text = "회원가입",
                 modifier = Modifier.align(alignment = Alignment.CenterHorizontally),
-                fontSize = 20.sp)
+                fontSize = Dimens.mainFontSize)
             Spacer(modifier = Modifier.height(15.dp))
 
             TextField(
@@ -205,10 +213,12 @@ fun signupPage() {
                 .clip(shape = MaterialTheme.shapes.medium)
                 .padding(16.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = if (userName.isNotBlank() && userId.isNotBlank()  && isPasswordCorrect(password)) colorResource(R.color.myButtonColor) else colorResource(R.color.myGray)
+                containerColor = if (userName.isNotBlank() && userId.isNotBlank()  && isPasswordCorrect(password)) colorResource(
+                    R.color.myButtonColor
+                ) else colorResource(R.color.myGray)
             )
         ) {
-            Text("회원가입", color = Color.White, fontSize = 20.sp)
+            Text("회원가입", color = Color.White, fontSize = Dimens.mainFontSize)
         }
     }
 
