@@ -1,5 +1,7 @@
 package com.example.focustimer.survery
 
+import com.example.shared.watchModel.CronoTimeSchedule
+
 // SurveyData.kt
 object SurveyData {
     val questions = listOf(
@@ -52,11 +54,11 @@ object SurveyCalculator {
 
         val chronotypeIndex = morningNormalizedScore - eveningNormalizedScore
         val chronotypeType = when {
-            chronotypeIndex >= 30 -> "확실한 아침형(Definite Morning Type)"
-            chronotypeIndex in 10.0..29.99 -> "중간 아침형(Moderate Morning Type)"
-            chronotypeIndex in -9.99..9.99 -> "중간형(Intermediate Type)"
-            chronotypeIndex in -29.99..-10.0 -> "중간 저녁형(Moderate Evening Type)"
-            else -> "확실한 저녁형(Definite Evening Type)"
+            chronotypeIndex >= 30 -> CronoTimeSchedule.definiteMorningType
+            chronotypeIndex in 10.0..29.99 -> CronoTimeSchedule.moderateMorningType
+            chronotypeIndex in -9.99..9.99 -> CronoTimeSchedule.intermediateType
+            chronotypeIndex in -29.99..-10.0 -> CronoTimeSchedule.moderateEveningType
+            else -> CronoTimeSchedule.definiteEveningType
         }
 
         return SurveyResult(

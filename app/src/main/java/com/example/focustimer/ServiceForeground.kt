@@ -4,20 +4,20 @@ import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.app.Service
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.net.Uri
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
+import android.os.PowerManager
 import android.provider.Settings
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
-import com.example.focustimer.Activity.MainActivity
 import com.example.focustimer.utils.MyIntents
 import com.example.shared.watchModel.WatchViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -35,7 +35,7 @@ class TimerService : Service() {
         const val NOTIFICATION_ID = 1
         const val ACTION_START = "com.example.pre_capstone.START"
         const val ACTION_PAUSE = "com.example.pre_capstone.PAUSE"
-        const val ACTION_STOP = "com.example.pre_capstone.STOP"
+        const val ACTION_STOP = "com.example.pre_capstone.TIMER_STOPPED"
         const val ACTION_SWITCH = "com.example.pre_capstone.SWITCH"
     }
 
@@ -68,6 +68,7 @@ class TimerService : Service() {
     }
 
     private val binder = TimerBinder()
+    private var wakeLock: PowerManager.WakeLock? = null
     private var timerJob: Job? = null
     private var isRunning = false
     private var totalWorkTime = 0
@@ -76,6 +77,7 @@ class TimerService : Service() {
     private var startTime = LocalDateTime.MIN
     private var mulTime = false
     private var callback: TimerCallback? = null
+
 
 
     private fun checkAndRequestPermissions() {
@@ -120,7 +122,34 @@ class TimerService : Service() {
             startActivity(intent)
         }
     }
+    fun checkBatteryOptimization() {
+        val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
+        if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+            // 배터리 최적화가 활성화된 경우
+            val intent = Intent().apply {
+                action = Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS
+                data = Uri.parse("package:$packageName")
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            }
+            startActivity(intent)
+        }
 
+        // 삼성 기기 추가 설정
+        if (Build.MANUFACTURER.equals("samsung", ignoreCase = true)) {
+            try {
+                val intent = Intent().apply {
+                    component = ComponentName(
+                        "com.samsung.android.lool",
+                        "com.samsung.android.sm.ui.battery.BatteryActivity"
+                    )
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+                startActivity(intent)
+            } catch (e: Exception) {
+                Log.e("Battery", "Samsung battery settings not available", e)
+            }
+        }
+    }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         // 서비스 시작 시 즉시 포그라운드로 전환
@@ -129,9 +158,7 @@ class TimerService : Service() {
 
         intent?.action?.let {
             when (it) {
-                ACTION_START -> {
-                    startTimer()
-                }
+                ACTION_START -> startTimer()
                 ACTION_PAUSE -> pauseTimer()
                 ACTION_SWITCH -> switchTimer()
                 ACTION_STOP -> stopTimer()
@@ -207,12 +234,12 @@ class TimerService : Service() {
 
         Log.d("TAG", "onReceive: 리시버던짐")
         // 브로드캐스트 전송 - UI에 타이머 종료 알림
-        val broadcastIntent = Intent(ACTION_STOP)
-        broadcastIntent.putExtra("navigate_to_main", true)
-        broadcastIntent.flags = Intent.FLAG_INCLUDE_STOPPED_PACKAGES
+        val broadcastIntent = Intent(ACTION_STOP).apply {
+            putExtra("navigate_to_main", true)
+            flags = Intent.FLAG_INCLUDE_STOPPED_PACKAGES
+        }
         sendBroadcast(broadcastIntent)
 
-        // 알림 제거 및 서비스 중지
         removeNotificationAndStopService()
     }
 
@@ -238,19 +265,20 @@ class TimerService : Service() {
     }
 
     private fun startTimerJob() {
+        acquireWakeLock()
+
         timerJob = CoroutineScope(Dispatchers.Default).launch {
             while (isRunning) {
                 delay(1000L)
-                viewModel.increaceTimer()
-                if (bound){
+                viewModel.increaseTimer()
+                if (bound) {
                     myService.sendTimerStatusToWatch()
                 }
-
-
                 updateNotification()
             }
         }
     }
+
 
 
     private fun createNotification(): Notification {
@@ -291,9 +319,7 @@ class TimerService : Service() {
 
     private fun removeNotificationAndStopService() {
         // 알림 매니저를 통해 직접 알림 제거
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.cancelAll()
-
+        (getSystemService(NOTIFICATION_SERVICE) as NotificationManager).cancelAll()
         // 안드로이드 버전에 따라 다른 방식으로 포그라운드 서비스 중지
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             stopForeground(STOP_FOREGROUND_REMOVE)
@@ -303,6 +329,14 @@ class TimerService : Service() {
 
         // 서비스 자체를 중지
         stopSelf()
+        if (bound) {
+            try {
+                unbindService(connection)
+                bound = false
+            } catch (e: IllegalArgumentException) {
+                Log.e("TimerService", "Service not bound", e)
+            }
+        }
     }
 
     override fun onTaskRemoved(rootIntent: Intent) {
@@ -322,21 +356,48 @@ class TimerService : Service() {
     }
 
     override fun onDestroy() {
+        super.onDestroy()
+
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.cancel(NOTIFICATION_ID)
         timerJob?.cancel()
         unBindWatchCommunicationService()
-        super.onDestroy()
+       releaseWakeLock()
+    }
+    private fun acquireWakeLock() {
+        val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
+        wakeLock = pm.newWakeLock(
+            PowerManager.PARTIAL_WAKE_LOCK,
+            "FocusTimer::TimerWakeLock"
+        ).apply { acquire(10 * 60 * 1000L) }
     }
 
-    private fun bindWatchCommunicationService() {
-        val intent = Intent(this, ServiceWatchCommunication::class.java)
-        bindService(intent, connection, Context.BIND_AUTO_CREATE)
+    // 안전한 null 처리
+    private fun releaseWakeLock() {
+        wakeLock?.takeIf { it.isHeld }?.release()
+        wakeLock = null
     }
+    private fun bindWatchCommunicationService() {
+        if(!bound){
+
+            val intent = Intent(this, ServiceWatchCommunication::class.java)
+            bindService(intent, connection, Context.BIND_AUTO_CREATE)
+
+        }
+    }
+
     private fun unBindWatchCommunicationService() {
-        if (bound) {
-            unbindService(connection)
-            bound = false
+        try {
+
+            if (bound) {
+                unbindService(connection)
+                bound = false
+            }
+        }
+        catch (e : IllegalArgumentException){
+
+            Log.e("TimerService", "unBindWatchCommunicationService: ", e)
+
         }
     }
 

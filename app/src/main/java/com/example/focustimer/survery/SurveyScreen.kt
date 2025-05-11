@@ -20,11 +20,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -36,11 +34,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
 import com.example.focustimer.LocalNavController
 import com.example.focustimer.R
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 // SurveyScreen.kt
@@ -87,7 +82,7 @@ fun SurveyScreen(
     if (surveyCompleted) {
     Box(modifier = Modifier
         .fillMaxSize()
-        .background(color = colorResource(R.color.myGray))
+        .background(color = MaterialTheme.colorScheme.background)
     ){
         ResultScreen(viewModel = viewModel)
     }
@@ -128,8 +123,7 @@ fun ResultScreen(
 
             ResultCard(
                 title = "크로노타입(생체시계 유형)",
-                content = surveyResult.chronotypeType,
-                backgroundColor = colorResource(R.color.myBlack)
+                content = surveyResult.chronotypeType.name,
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -141,7 +135,6 @@ fun ResultScreen(
                 ResultCard(
                     title = "아침형 점수",
                     content = "${surveyResult.morningScore}/75",
-                    backgroundColor = Color(0xFF4CAF50),
                     modifier = Modifier.weight(1f)
                 )
 
@@ -150,7 +143,6 @@ fun ResultScreen(
                 ResultCard(
                     title = "저녁형 점수",
                     content = "${surveyResult.eveningScore}/45",
-                    backgroundColor = Color(0xFF2196F3),
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -160,7 +152,6 @@ fun ResultScreen(
             ResultCard(
                 title = "생체 리듬 민감도",
                 content = SurveyCalculator.getSensitivityLevel(surveyResult.sensitivityScore),
-                backgroundColor = Color(0xFFFFA000)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -231,7 +222,6 @@ fun ResultScreen(
 fun ResultCard(
     title: String,
     content: String,
-    backgroundColor: Color,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -247,7 +237,6 @@ fun ResultCard(
             Text(
                 text = title,
                 style = MaterialTheme.typography.labelMedium,
-                color = Color.White,
                 textAlign = TextAlign.Center
             )
 
@@ -256,7 +245,6 @@ fun ResultCard(
             Text(
                 text = content,
                 style = MaterialTheme.typography.labelMedium,
-                color = Color.White,
                 textAlign = TextAlign.Center
             )
         }

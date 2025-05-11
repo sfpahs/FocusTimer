@@ -73,9 +73,8 @@ class WatchViewModel : ViewModel() {
         _activeTimer.value = value
         //_watchInfo.value.activeTimer = if(_watchInfo.value.activeTimer == 1) 2 else 1
     }
-    fun increaceTimer(){
-        _time.value = time.value + 1
-        Log.d("TAG", "increaceTimer: ${time.value}")
+    fun increaseTimer(second : Int = 1){
+        _time.value += second
     }
     fun resetTimer(){
         _time.value = 0

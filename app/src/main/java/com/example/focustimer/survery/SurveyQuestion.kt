@@ -1,5 +1,8 @@
 package com.example.focustimer.survery
 
+import com.example.shared.watchModel.CronoTime
+import com.example.shared.watchModel.CronoTimeSchedule
+
 data class Question(
     val id: Int,
     val text: String,
@@ -20,5 +23,5 @@ data class SurveyResult(
     val morningNormalizedScore: Double,
     val eveningNormalizedScore: Double,
     val chronotypeIndex: Double,
-    val chronotypeType: String
+    val chronotypeType: CronoTime
 )

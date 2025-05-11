@@ -100,7 +100,7 @@ fun DualStopwatchApp(
         Log.d("TAG", "onReceive: 리시버등록")
         context.registerReceiver(
             timerStoppedReceiver,
-            IntentFilter("com.example.pre_capstone.TIMER_STOPPED"),
+            IntentFilter(TimerService.ACTION_STOP),
             Context.RECEIVER_EXPORTED
         )
 

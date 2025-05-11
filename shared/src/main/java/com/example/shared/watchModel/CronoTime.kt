@@ -1,6 +1,7 @@
 package com.example.shared.watchModel
 
 data class CronoTime(
+    val name : String,
     val productive1 : time,
     val productive2 : time? = null,
     val creative : time? = null,

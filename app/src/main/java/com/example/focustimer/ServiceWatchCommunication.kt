@@ -1,11 +1,13 @@
 package com.example.focustimer
 
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
 import android.util.Log
 import androidx.navigation.NavHostController
+import com.example.focustimer.utils.MyIntents
 import com.example.shared.watchModel.WatchData
 import com.example.shared.watchModel.WatchViewModel
 import com.google.android.gms.wearable.MessageClient
@@ -57,13 +59,24 @@ class ServiceWatchCommunication : Service(), MessageClient.OnMessageReceivedList
                     when (action) {
                         "switch" -> {
                             Log.d("watchReceive", "onMessageReceived: switch")
-                            this.action = TimerService.ACTION_SWITCH}
+                            // PendingIntent를 사용하여 switch 액션 실행
+                            try {
+                                MyIntents.getSwitchWatchIntent(applicationContext)?.send()
+                            } catch (e: PendingIntent.CanceledException) {
+                                Log.e("watchReceive", "PendingIntent cancelled", e)
+                            }
+                        }
 
-                        "stop" ->
-                            this.action = TimerService.ACTION_STOP
+                        "stop" ->{
+                            // PendingIntent를 사용하여 stop 액션 실행
+                            try {
+                                MyIntents.getStopWatchIntent(applicationContext)?.send()
+                            } catch (e: PendingIntent.CanceledException) {
+                                Log.e("watchReceive", "PendingIntent cancelled", e)
+                            }
+                        }
                     }
                 }
-                startService(serviceIntent)
             }
             "/navigation" -> {
                 val destination = String(messageEvent.data)

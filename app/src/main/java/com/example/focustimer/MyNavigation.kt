@@ -35,7 +35,9 @@ import com.example.focustimer.Page.LoginScreen
 import com.example.focustimer.Page.signupPage
 import com.example.focustimer.Page.weekHistoryApp
 import com.example.focustimer.survery.SurveyScreen
+import com.example.focustimer.test.ScheduleContainerPage
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 
 
 val LocalNavController = compositionLocalOf<NavHostController> { error("No NavController found!") }
@@ -47,13 +49,14 @@ val LocalNavController = compositionLocalOf<NavHostController> { error("No NavCo
 fun MyBottomNavi(navController: NavHostController = rememberNavController()) {
 
     val user = FirebaseAuth.getInstance().currentUser
+    //FirebaseAuth.getInstance().signOut()
     val startPage = if(user != null) "main" else "signin"
     CompositionLocalProvider(LocalNavController provides navController) {
         val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
 
         Scaffold(
             bottomBar ={
-                if(currentRoute in listOf("main","history" ))
+                if(currentRoute in listOf("main","history", "date"))
                 {
                     NavigationBar (
                         containerColor = colorResource(R.color.myGray)
@@ -129,7 +132,8 @@ fun MyBottomNavi(navController: NavHostController = rememberNavController()) {
 
             NavHost(navController, startDestination = startPage, Modifier.padding(innerPadding)) {
                 composable("main") { MainPage() }
-                composable("date") { SurveyScreen() }
+                composable("date") { ScheduleContainerPage() }
+                composable("survey") { SurveyScreen() }
                 composable("history") { weekHistoryApp() }
                 composable("signup") { signupPage() }
                 composable("signin") { LoginScreen() }

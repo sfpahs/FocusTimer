@@ -78,6 +78,7 @@ fun signUp(context : Context, name : String, email: String, password: String,onS
             }
         }
 }
+
 fun checkEmailExists(email: String, callback: (Boolean) -> Unit) {
     val auth = FirebaseAuth.getInstance()
 
@@ -91,6 +92,7 @@ fun checkEmailExists(email: String, callback: (Boolean) -> Unit) {
             }
         }
 }
+
 @RequiresApi(Build.VERSION_CODES.O)
 fun loadWeekHistoryData(
     uid: String,
@@ -127,6 +129,7 @@ fun loadWeekHistoryData(
         }
     }
 }
+
 fun loadDateHistoryData(historyRef: DatabaseReference, callback: (List<Pair<Int, Int>>) -> Unit) {
     var saveData = mutableListOf<Pair<Int, Int>>()
     historyRef.get().addOnCompleteListener { task ->
@@ -179,7 +182,6 @@ fun calcWeekDate(inputDate: String): List<String> {
     return weekDates
 }
 
-
 @RequiresApi(Build.VERSION_CODES.O)
 fun saveHistoryData(saveData : com.example.shared.HistoryData, uid : String){
     val historyRef = MyFireBase.getTodayRef(uid = uid).push()
@@ -188,6 +190,7 @@ fun saveHistoryData(saveData : com.example.shared.HistoryData, uid : String){
         .addOnFailureListener {e ->  Log.e("firebaseError", "saveHistoryData: ${e.message}", ) }
     updateTodayHistoryData(saveData, uid)
 }
+
 @RequiresApi(Build.VERSION_CODES.O)
 fun updateTodayHistoryData(data: com.example.shared.HistoryData, uid : String){
     val historyRef = MyFireBase.getTodayRef(uid = uid)
@@ -205,13 +208,12 @@ fun updateTodayHistoryData(data: com.example.shared.HistoryData, uid : String){
 
 }
 
-
 fun saveDefaultUserSettingFireBase(uid: String, name : String, context: Context) {
 
     val userRef  = MyFireBase.dataBase.getReference("users").child(uid)
     val timerSettingsRef = userRef
-        .child("settings")
-        .child("timer")
+        .child("timersettings")
+       // .child("timer")
 
     val timerSettings = listOf(
         TimerSetting(
@@ -257,8 +259,8 @@ fun loadTimerSettingsFireBase(uid: String, onSuccess: (List<TimerSetting>) -> Un
     Firebase.database.reference
         .child("users")
         .child(uid)
-        .child("settings")
-        .child("timer")
+        .child("timersettings")
+        //.child("timer")
         .get()
         .addOnCompleteListener { task ->
             if (task.isSuccessful) {
@@ -316,8 +318,6 @@ fun loadTodayHistoryData(historyRef : DatabaseReference, callback : (Pair<Int, I
         }
     }
 }
-
-
 
 fun TimerSetting.toMap(): Map<String, Any> {
     return mapOf(

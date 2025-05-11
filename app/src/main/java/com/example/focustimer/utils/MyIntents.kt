@@ -13,22 +13,33 @@ object MyIntents {
         val switchIntent = Intent(context, TimerService::class.java).apply {
             action = ACTION_SWITCH
         }
+
         val switchPendingIntent = PendingIntent.getService(
             context, 1, switchIntent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
         return switchPendingIntent
     }
+
     fun getStopWatchIntent(context: Context) : PendingIntent?{
+        // [1] 메인 액티비티 실행 인텐트
+//        val mainIntent = Intent(context, MainActivity::class.java).apply {
+//            flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or // 기존 인스턴스 재활용
+//                    Intent.FLAG_ACTIVITY_SINGLE_TOP
+//            putExtra("from_notification_stop", true) // 식별용 추가 데이터
+//        }
         val stopIntent = Intent(context, TimerService::class.java).apply {
             action = ACTION_STOP
         }
-        val stopPendingIntent = PendingIntent.getService(
-            context, 2, stopIntent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+
+        return PendingIntent.getService(
+            context,
+            2,
+             stopIntent, // 액티비티 실행 후 서비스 종료
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
-        return stopPendingIntent
     }
+
     fun getNotificationIntent(context: Context): PendingIntent?{
         val notificationIntent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
