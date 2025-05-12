@@ -20,6 +20,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 
@@ -38,7 +39,6 @@ fun formatHour12h(hour: Int): String =
         hour == 12 -> "12pm"
         else -> "${hour - 12}pm"
     }
-
 @Composable
 fun WeeklySchedule(
     startDate: LocalDate,
@@ -46,10 +46,14 @@ fun WeeklySchedule(
 ) {
     val hours = (0..23).toList()
     val days = (0..6).map { startDate.plusDays(it.toLong()) }
-    val scrollState = rememberScrollState()
+    val horizontalScrollState = rememberScrollState()
+    val verticalScrollState = rememberScrollState()  // 수직 스크롤 상태 추가
 
-    Row {
-
+    // 외부 Column을 추가하고 verticalScroll 수정자 적용
+    Column(
+        modifier = Modifier.verticalScroll(verticalScrollState)
+    ) {
+        Row {
             Column(modifier = Modifier.width(48.dp)) {
                 Spacer(modifier = Modifier.height(32.dp)) // 헤더 공간
                 hours.forEach { hour ->
@@ -64,60 +68,59 @@ fun WeeklySchedule(
                 }
             }
 
-        Row(modifier = Modifier.horizontalScroll(scrollState)) {
-            // 시간대 (왼쪽)
-
-            // 날짜별 스케줄 (오른쪽)
-            days.forEach { date ->
-                Column(
-                    modifier = Modifier
-                        .width(80.dp)
-                        .border(1.dp, Color.LightGray)
-                ) {
-                    // 날짜 헤더
-                    Text(
-                        text = "${date.monthValue}/${date.dayOfMonth}",
+            Row(modifier = Modifier.horizontalScroll(horizontalScrollState)) {
+                // 날짜별 스케줄 (오른쪽)
+                days.forEach { date ->
+                    Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(32.dp)
-                            .background(Color(0xFFE3F2FD)),
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(48.dp * 24)
+                            .width(80.dp)
+                            .border(1.dp, Color.LightGray)
                     ) {
-                        // 시간별 그리드
-                        Column {
-                            hours.forEach { _ ->
+                        // 날짜 헤더
+                        Text(
+                            text = "${date.monthValue}/${date.dayOfMonth}",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(32.dp)
+                                .background(Color(0xFFE3F2FD)),
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp * 24)
+                        ) {
+                            // 시간별 그리드
+                            Column {
+                                hours.forEach { _ ->
+                                    Box(
+                                        modifier = Modifier
+                                            .height(48.dp)
+                                            .fillMaxWidth()
+                                            .border(0.5.dp, Color.LightGray)
+                                    )
+                                }
+                            }
+                            // 이벤트 표시
+                            events.filter { it.date == date }.forEach { event ->
+                                val topOffset = (event.startHour * 48) + (event.startMinute * 48 / 60)
+                                val eventHeight = (event.durationMinutes * 48) / 60
                                 Box(
                                     modifier = Modifier
-                                        .height(48.dp)
+                                        .offset(y = topOffset.dp)
+                                        .height(eventHeight.dp)
                                         .fillMaxWidth()
-                                        .border(0.5.dp, Color.LightGray)
-                                )
-                            }
-                        }
-                        // 이벤트 표시
-                        events.filter { it.date == date }.forEach { event ->
-                            val topOffset = (event.startHour * 48) + (event.startMinute * 48 / 60)
-                            val eventHeight = (event.durationMinutes * 48) / 60
-                            Box(
-                                modifier = Modifier
-                                    .offset(y = topOffset.dp)
-                                    .height(eventHeight.dp)
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 2.dp)
-                                    .background(Color(0xFF90CAF9), shape = MaterialTheme.shapes.small),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = event.title,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = Color.White
-                                )
+                                        .padding(horizontal = 2.dp)
+                                        .background(Color(0xFF90CAF9), shape = MaterialTheme.shapes.small),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = event.title,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = Color.White
+                                    )
+                                }
                             }
                         }
                     }
@@ -125,7 +128,6 @@ fun WeeklySchedule(
             }
         }
     }
-
 }
 
 @Preview
