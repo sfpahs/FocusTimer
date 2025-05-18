@@ -33,6 +33,13 @@ class WatchViewModel : ViewModel() {
     val time : StateFlow<Int> = _time
     private val database = FirebaseDatabase.getInstance().reference
 
+    private val _mul = MutableStateFlow(1)
+    val mul : StateFlow<Int> = _mul
+    fun updateMul(){
+        if(mul.value ==1)
+        _mul.value = 60
+        else _mul.value = 1
+    }
 
     //현재 타이머 정보
     fun loadTimerSettings(userId: String) {
@@ -74,7 +81,7 @@ class WatchViewModel : ViewModel() {
         //_watchInfo.value.activeTimer = if(_watchInfo.value.activeTimer == 1) 2 else 1
     }
     fun increaseTimer(second : Int = 1){
-        _time.value += second
+        _time.value += mul.value
     }
     fun resetTimer(){
         _time.value = 0

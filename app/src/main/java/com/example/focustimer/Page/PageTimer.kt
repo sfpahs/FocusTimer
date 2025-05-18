@@ -236,8 +236,8 @@ fun DualStopwatchApp(
                     modifier = Modifier,
                     checked = mulTime,
                     onCheckedChange = {
-                        mulTime = it
-                        timerService?.setMinuteMultiplier(mulTime)
+                        viewModel.updateMul()
+                        (viewModel.mul.value == 60)
                     },
                     colors = SwitchDefaults.colors(
                         checkedTrackColor = Color.Red
@@ -257,8 +257,6 @@ fun StopwatchUI(
     time : Int,
     timerSetting: com.example.shared.model.TimerSetting
 ) {
-    val viewModel : WatchViewModel by lazy { WatchViewModel.getInstance() }
-
     val maxTime =if( activeTimer == 1 ) timerSetting.workTime else timerSetting.restTime
 
     Box(contentAlignment = Alignment.Center, modifier = modifier) {
