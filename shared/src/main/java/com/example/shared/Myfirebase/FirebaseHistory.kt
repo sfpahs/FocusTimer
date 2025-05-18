@@ -129,7 +129,7 @@ fun loadDayHistoryData(date : LocalDate, onResult: (List<HistoryData>) -> Unit){
                 for(childSnapshot in snapshot.children){
                     if(snapshot.key !="totalData") {
                         val data = snapshot.getValue(HistoryData::class.java)
-                        if (data != null) {
+                        if (data != null && data.category >= 0) {
                             dataList.add(data)
                         }
                     }

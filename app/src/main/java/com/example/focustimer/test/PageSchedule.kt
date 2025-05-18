@@ -23,6 +23,11 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.ViewModel
+import com.example.shared.Myfirebase.loadDayHistoryData
+import com.example.shared.model.WatchViewModel
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.auth
 
 data class Event(
     val id: Int,
@@ -32,6 +37,30 @@ data class Event(
     val startMinute: Int,      // 0~59
     val durationMinutes: Int   // 분 단위
 )
+
+fun loadEvent(dates : List<LocalDate>) : List<Event>{
+    val viewModel : WatchViewModel by lazy { WatchViewModel.getInstance() }
+    viewModel.loadTimerSettings(FirebaseAuth.getInstance().currentUser!!.uid)
+    val timerSettings = viewModel.timerSettings
+    var list = mutableListOf<Event>()
+
+    var id = 1
+    dates.forEach { date ->
+        loadDayHistoryData(date = date){ dataList ->
+            dataList.forEach { data ->
+                list.add(Event(
+                    id = id++,
+                    title = timerSettings.value.get(data.category).name,
+                    date = date,
+                    startHour = data.startTime.hour,
+                    startMinute = data.startTime.minute,
+                    durationMinutes = data.totalMinute))
+            }
+        }
+    }
+    return list
+}
+
 fun formatHour12h(hour: Int): String =
     when {
         hour == 0 -> "12am"
@@ -41,23 +70,21 @@ fun formatHour12h(hour: Int): String =
     }
 
 @Composable
-fun WeeklySchedule(
-    startDate: LocalDate,
-    //history
-    //events: List<Event>
-) {
-    val today = LocalDate.now()
-    val events = listOf(
-        Event(1, "아침 운동", today, 6, 30, 60),
-        Event(2, "회의", today, 10, 0, 30),
-        Event(3, "점심 식사", today, 12, 0, 60),
-        Event(4, "스터디", today.plusDays(1), 20, 0, 90),
-        Event(5, "저녁 약속", today.plusDays(3), 18, 30, 120)
-    )
-
-
-    val hours = (0..23).toList()
+fun WeeklySchedule(startDate : LocalDate) {
+    val startDate = startDate.with(java.time.DayOfWeek.MONDAY)
     val days = (0..6).map { startDate.plusDays(it.toLong()) }
+    val hours = (0..23).toList()
+
+//todo 데이터 교체작업
+    val events = loadEvent(dates = days)
+//        listOf(
+//        Event(1, "아침 운동", today, 6, 30, 60),
+//        Event(2, "회의", today, 10, 0, 30),
+//        Event(3, "점심 식사", today, 12, 0, 60),
+//        Event(4, "스터디", today.plusDays(1), 20, 0, 90),
+//        Event(5, "저녁 약속", today.plusDays(3), 18, 30, 120)
+//    )
+
     val horizontalScrollState = rememberScrollState()
     val verticalScrollState = rememberScrollState()  // 수직 스크롤 상태 추가
     val dayHeight = 32
@@ -143,22 +170,15 @@ fun WeeklySchedule(
     }
 }
 
+
+
+
+
 @Preview
 @Composable
 fun WeeklyScheduleSampleScreen() {
-    val today = LocalDate.now()
-    val sampleEvents = listOf(
-        Event(1, "아침 운동", today, 6, 30, 60),
-        Event(2, "회의", today, 10, 0, 30),
-        Event(3, "점심 식사", today, 12, 0, 60),
-        Event(4, "스터디", today.plusDays(1), 20, 0, 90),
-        Event(5, "저녁 약속", today.plusDays(3), 18, 30, 120)
-    )
     Box(modifier = Modifier
         .background(Color.White)){
-        WeeklySchedule(
-            startDate = today.with(java.time.DayOfWeek.MONDAY), // 이번주 월요일로 시작
-
-        )
+        WeeklySchedule(startDate = LocalDate.now())
     }
 }
