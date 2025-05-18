@@ -59,8 +59,7 @@ fun ScheduleContainerPage() {
             Button(
                 onClick = { navController.navigate("survey") },
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
+                    .fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF90CAF9)
                 )
@@ -86,6 +85,7 @@ fun ScheduleContainerPage() {
         TabRow(
             selectedTabIndex = selectedViewType.ordinal,
             modifier = Modifier.fillMaxWidth()
+
         ) {
             Tab(
                 selected = selectedViewType == ScheduleViewType.DAILY,

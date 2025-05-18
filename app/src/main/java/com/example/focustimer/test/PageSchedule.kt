@@ -39,6 +39,7 @@ fun formatHour12h(hour: Int): String =
         hour == 12 -> "12pm"
         else -> "${hour - 12}pm"
     }
+
 @Composable
 fun WeeklySchedule(
     startDate: LocalDate,
@@ -48,7 +49,8 @@ fun WeeklySchedule(
     val days = (0..6).map { startDate.plusDays(it.toLong()) }
     val horizontalScrollState = rememberScrollState()
     val verticalScrollState = rememberScrollState()  // 수직 스크롤 상태 추가
-
+    val dayHeight = 32
+    val dayWidth = 55
     // 외부 Column을 추가하고 verticalScroll 수정자 적용
     Column(
         modifier = Modifier.verticalScroll(verticalScrollState)
@@ -59,7 +61,7 @@ fun WeeklySchedule(
                 hours.forEach { hour ->
                     Box(
                         modifier = Modifier
-                            .height(48.dp)
+                            .height(dayHeight.dp)
                             .fillMaxWidth(),
                         contentAlignment = Alignment.Center
                     ) {
@@ -73,7 +75,7 @@ fun WeeklySchedule(
                 days.forEach { date ->
                     Column(
                         modifier = Modifier
-                            .width(80.dp)
+                            .width(dayWidth.dp)
                             .border(1.dp, Color.LightGray)
                     ) {
                         // 날짜 헤더
@@ -89,14 +91,14 @@ fun WeeklySchedule(
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(48.dp * 24)
+                                .height(dayHeight.dp * 24)
                         ) {
                             // 시간별 그리드
                             Column {
                                 hours.forEach { _ ->
                                     Box(
                                         modifier = Modifier
-                                            .height(48.dp)
+                                            .height(dayHeight.dp)
                                             .fillMaxWidth()
                                             .border(0.5.dp, Color.LightGray)
                                     )
@@ -104,8 +106,8 @@ fun WeeklySchedule(
                             }
                             // 이벤트 표시
                             events.filter { it.date == date }.forEach { event ->
-                                val topOffset = (event.startHour * 48) + (event.startMinute * 48 / 60)
-                                val eventHeight = (event.durationMinutes * 48) / 60
+                                val topOffset = (event.startHour * dayHeight) + (event.startMinute * dayHeight / 60)
+                                val eventHeight = (event.durationMinutes * dayHeight) / 60
                                 Box(
                                     modifier = Modifier
                                         .offset(y = topOffset.dp)

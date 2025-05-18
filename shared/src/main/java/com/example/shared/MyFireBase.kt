@@ -12,6 +12,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.database
 import kotlinx.coroutines.coroutineScope
 import java.time.LocalDate
@@ -24,20 +25,23 @@ class MyFireBase(){
     companion object{
         val dataBase = Firebase.database
         @RequiresApi(Build.VERSION_CODES.O)
-        fun getTodayRef(uid: String) : DatabaseReference{
+        fun getTodayRef() : DatabaseReference{
 
             val currentTime = LocalDateTime.now(ZoneId.of("Asia/Seoul"))
             val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
             val formattedDate = currentTime.format(formatter)
 
             //todo 이후 유저 로그인시 유저이름으로 패스정하기
-            val historyRef = dataBase.getReference("users")
-                .child(uid)
+            val historyRef = getDataBase()
                 .child("history")
                 .child(formattedDate)
 
 
             return historyRef
+        }
+        fun getDataBase() : DatabaseReference{
+            val user = FirebaseAuth.getInstance().currentUser
+             return user!!.uid.let {dataBase.getReference("users").child(it) }
         }
     }
 }
@@ -69,7 +73,7 @@ fun signUp(context : Context, name : String, email: String, password: String,onS
             if (task.isSuccessful) {
                 Log.i("firebase", "signUp: success")
                     val user = auth.currentUser
-                user?.let { saveDefaultUserSettingFireBase(it.uid, name, context = context) }
+                user?.let { saveDefaultUserSettingFireBase(name, context = context) }
                 Log.d("login", "signUp: ${user?.uid}")
                 onSuccessCallback()
             } else {
@@ -184,7 +188,7 @@ fun calcWeekDate(inputDate: String): List<String> {
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun saveHistoryData(saveData : com.example.shared.HistoryData, uid : String){
-    val historyRef = MyFireBase.getTodayRef(uid = uid).push()
+    val historyRef = MyFireBase.getTodayRef().push()
     historyRef.setValue(saveData)
         .addOnSuccessListener { Log.i("firebase", "saveHistoryData: save Success")}
         .addOnFailureListener {e ->  Log.e("firebaseError", "saveHistoryData: ${e.message}", ) }
@@ -193,7 +197,8 @@ fun saveHistoryData(saveData : com.example.shared.HistoryData, uid : String){
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun updateTodayHistoryData(data: com.example.shared.HistoryData, uid : String){
-    val historyRef = MyFireBase.getTodayRef(uid = uid)
+
+    val historyRef = MyFireBase.getTodayRef()
         .child("totalData")
         .child("${data.category}")
     var loadData : Pair<Int, Int> = Pair(0,0)
@@ -208,9 +213,9 @@ fun updateTodayHistoryData(data: com.example.shared.HistoryData, uid : String){
 
 }
 
-fun saveDefaultUserSettingFireBase(uid: String, name : String, context: Context) {
+fun saveDefaultUserSettingFireBase(name : String, context: Context) {
 
-    val userRef  = MyFireBase.dataBase.getReference("users").child(uid)
+    val userRef  = MyFireBase.getDataBase()
     val timerSettingsRef = userRef
         .child("timersettings")
        // .child("timer")
@@ -344,5 +349,10 @@ private fun clearLocalData(context: Context) {
     // SharedPreferences 초기화
     val sharedPreferences = context.getSharedPreferences("APP_PREFERENCES", Context.MODE_PRIVATE)
     sharedPreferences.edit().clear().apply()
+
+}
+
+fun updateCronotype(cronoName : String){
+    val reference = MyFireBase.getDataBase()
 
 }
