@@ -19,10 +19,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.focustimer.LocalNavController
 import com.example.focustimer.R
 import com.example.focustimer.utils.Dimens
+import com.example.shared.Myfirebase.checkEmailExists
+import com.example.shared.Myfirebase.signInWithEmailAndPassword
+import com.example.shared.Myfirebase.signUp
 
 @Composable
 fun LoginScreen() {
@@ -77,7 +79,7 @@ fun LoginScreen() {
             // 로그인 버튼
             Button(
                 onClick = {
-                    com.example.shared.signInWithEmailAndPassword(email = email,
+                    signInWithEmailAndPassword(email = email,
                         password = password,
                         onSuccess = {
                             navHostController.navigate("main")
@@ -188,11 +190,11 @@ fun signupPage() {
             onClick = {
                 if(!isPasswordCorrect(password)) Toast.makeText(context, "비밀번호 6자리 이상 설정해주세요", Toast.LENGTH_SHORT).show()
                 else
-                    com.example.shared.checkEmailExists(email = userId) { exist ->
+                    checkEmailExists(email = userId) { exist ->
                         if (exist) {
                             Toast.makeText(context, "이미 존재하는 이메일입니다", Toast.LENGTH_SHORT).show()
                         } else {
-                            com.example.shared.signUp(email = userId,
+                            signUp(email = userId,
                                 password = password,
                                 name = userName,
                                 context = context,

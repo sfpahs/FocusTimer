@@ -45,7 +45,7 @@ import androidx.compose.ui.unit.sp
 import com.example.focustimer.LocalNavController
 import com.example.focustimer.Activity.MainActivity.Companion.timerStoppedReceiver
 import com.example.focustimer.TimerService
-import com.example.shared.watchModel.WatchViewModel
+import com.example.shared.model.WatchViewModel
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
@@ -255,7 +255,7 @@ fun StopwatchUI(
     isChecked: Boolean,
     activeTimer : Int,
     time : Int,
-    timerSetting: com.example.shared.watchModel.TimerSetting
+    timerSetting: com.example.shared.model.TimerSetting
 ) {
     val viewModel : WatchViewModel by lazy { WatchViewModel.getInstance() }
 

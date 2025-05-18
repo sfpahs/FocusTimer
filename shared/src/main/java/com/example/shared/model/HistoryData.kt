@@ -1,4 +1,4 @@
-package com.example.shared
+package com.example.shared.model
 
 import android.annotation.SuppressLint
 import java.time.LocalDateTime

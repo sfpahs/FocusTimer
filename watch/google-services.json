@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "955465940198",
+    "firebase_url": "https://a001-d2016.firebaseio.com",
+    "project_id": "a001-d2016",
+    "storage_bucket": "a001-d2016.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:955465940198:android:6417069b2a01f20da2cf27",
+        "android_client_info": {
+          "package_name": "com.example.focustimer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "955465940198-bcqsincv4su3db1pdl8ee9dvorkrdlmn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDDCeVNx8qAN4JJTXN1pej8q5uME0WNfC8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "955465940198-bcqsincv4su3db1pdl8ee9dvorkrdlmn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:955465940198:android:a7bfd5dae0df0f87a2cf27",
+        "android_client_info": {
+          "package_name": "com.example.pre_capstone"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "955465940198-bcqsincv4su3db1pdl8ee9dvorkrdlmn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDDCeVNx8qAN4JJTXN1pej8q5uME0WNfC8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "955465940198-bcqsincv4su3db1pdl8ee9dvorkrdlmn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

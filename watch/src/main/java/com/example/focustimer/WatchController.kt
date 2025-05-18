@@ -26,7 +26,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.Text
-import com.example.shared.watchModel.WatchViewModel
+import com.example.shared.model.WatchViewModel
 import com.google.android.gms.wearable.MessageClient
 import com.google.android.gms.wearable.Wearable
 import kotlinx.coroutines.CoroutineScope
@@ -34,7 +34,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.coroutines.resume
 import com.google.android.gms.tasks.Task
-import com.google.android.gms.wearable.CapabilityClient
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.resumeWithException

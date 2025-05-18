@@ -2,9 +2,8 @@ package com.example.focustimer
 import android.content.Intent
 import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.example.shared.watchModel.TimerSetting
-import com.example.shared.watchModel.WatchData
-import com.example.shared.watchModel.WatchViewModel
+import com.example.shared.model.WatchData
+import com.example.shared.model.WatchViewModel
 import com.google.android.gms.wearable.DataEvent
 import com.google.android.gms.wearable.DataEventBuffer
 import com.google.android.gms.wearable.DataMap

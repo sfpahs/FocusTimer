@@ -1,9 +1,9 @@
-package com.example.shared.watchModel
+package com.example.shared.model
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.shared.loadTimerSettingsFireBase
+import com.example.shared.Myfirebase.loadTimerSettingsFireBase
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

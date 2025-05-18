@@ -299,7 +299,7 @@ fun WeeklyScheduleSampleScreen(startDate: LocalDate = LocalDate.now().with(java.
         .background(Color.White)) {
         WeeklySchedule(
             startDate = startDate,
-            events = sampleEvents
+            //events = sampleEvents
         )
     }
 }

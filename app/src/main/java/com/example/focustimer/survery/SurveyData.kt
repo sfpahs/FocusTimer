@@ -1,6 +1,6 @@
 package com.example.focustimer.survery
 
-import com.example.shared.watchModel.CronoTimeSchedule
+import com.example.shared.model.CronoTimeSchedule
 
 // SurveyData.kt
 object SurveyData {

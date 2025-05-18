@@ -8,8 +8,8 @@ import android.os.IBinder
 import android.util.Log
 import androidx.navigation.NavHostController
 import com.example.focustimer.utils.MyIntents
-import com.example.shared.watchModel.WatchData
-import com.example.shared.watchModel.WatchViewModel
+import com.example.shared.model.WatchData
+import com.example.shared.model.WatchViewModel
 import com.google.android.gms.wearable.MessageClient
 import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.PutDataMapRequest

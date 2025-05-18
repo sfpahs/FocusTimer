@@ -19,7 +19,9 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.example.focustimer.utils.MyIntents
-import com.example.shared.watchModel.WatchViewModel
+import com.example.shared.Myfirebase.saveHistoryData
+import com.example.shared.model.HistoryData
+import com.example.shared.model.WatchViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -218,7 +220,7 @@ class TimerService : Service() {
         totalWorkTime /= 60
         totalRestTime /= 60
 
-        val historyData = com.example.shared.HistoryData(
+        val historyData = HistoryData(
             startTime = startTime,
             category = setting.category,
             totalMinute = totalWorkTime + totalRestTime,
@@ -229,7 +231,7 @@ class TimerService : Service() {
 
         val user = FirebaseAuth.getInstance().currentUser
         user?.let {
-            com.example.shared.saveHistoryData(historyData, it.uid)
+            saveHistoryData(historyData, it.uid)
         }
 
         Log.d("TAG", "onReceive: 리시버던짐")

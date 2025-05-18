@@ -36,8 +36,10 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.focustimer.LocalNavController
 import com.example.focustimer.R
-import com.example.shared.watchModel.WatchData
-import com.example.shared.watchModel.WatchViewModel
+import com.example.shared.Myfirebase.loadUserName
+import com.example.shared.Myfirebase.logOut
+import com.example.shared.model.WatchData
+import com.example.shared.model.WatchViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -100,7 +102,7 @@ fun MainPage() {
 
             if (user != null) {
 
-                com.example.shared.loadUserName(
+                loadUserName(
                     uid = user.uid,
                     onComplete = { name -> userName = name!! })
                 if(!userName.equals("")) Text(text = userName + " 님", color = colorResource(R.color.myBlack))
@@ -110,7 +112,7 @@ fun MainPage() {
         }
         Log.i("main", "MainPage: ${userName}")
         Button(
-            onClick = { com.example.shared.logOut(context = context)
+            onClick = { logOut(context = context)
             navHostController.navigate("signin")}
         ) { Text(text = "Log out")}
     }
@@ -118,7 +120,7 @@ fun MainPage() {
     user?.let {
         scope.launch {
             viewModel.loadTimerSettings(it.uid)
-            com.example.shared.loadUserName(it.uid) { name ->
+            loadUserName(it.uid) { name ->
                 userName = name ?: ""
             }
             delay(1000)
@@ -130,7 +132,7 @@ fun MainPage() {
     LoadingScreen(isLoading = isLoading)
 }
 @Composable
-fun myBox(modifier: Modifier, timerSetting: com.example.shared.watchModel.TimerSetting){
+fun myBox(modifier: Modifier, timerSetting: com.example.shared.model.TimerSetting){
     val navController = LocalNavController.current
     val timerViewModel : WatchViewModel by lazy { WatchViewModel.getInstance() }
     Column (modifier = modifier

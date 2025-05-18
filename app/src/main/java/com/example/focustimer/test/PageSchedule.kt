@@ -43,8 +43,19 @@ fun formatHour12h(hour: Int): String =
 @Composable
 fun WeeklySchedule(
     startDate: LocalDate,
-    events: List<Event>
+    //history
+    //events: List<Event>
 ) {
+    val today = LocalDate.now()
+    val events = listOf(
+        Event(1, "아침 운동", today, 6, 30, 60),
+        Event(2, "회의", today, 10, 0, 30),
+        Event(3, "점심 식사", today, 12, 0, 60),
+        Event(4, "스터디", today.plusDays(1), 20, 0, 90),
+        Event(5, "저녁 약속", today.plusDays(3), 18, 30, 120)
+    )
+
+
     val hours = (0..23).toList()
     val days = (0..6).map { startDate.plusDays(it.toLong()) }
     val horizontalScrollState = rememberScrollState()
@@ -147,7 +158,7 @@ fun WeeklyScheduleSampleScreen() {
         .background(Color.White)){
         WeeklySchedule(
             startDate = today.with(java.time.DayOfWeek.MONDAY), // 이번주 월요일로 시작
-            events = sampleEvents
+
         )
     }
 }

@@ -1,4 +1,4 @@
-package com.example.shared.watchModel
+package com.example.shared.model
 
 data class TimerSetting(
     val category: Int = 0,

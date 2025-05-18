@@ -1,7 +1,6 @@
 package com.example.focustimer.survery
 
-import com.example.shared.watchModel.CronoTime
-import com.example.shared.watchModel.CronoTimeSchedule
+import com.example.shared.model.CronoTime
 
 data class Question(
     val id: Int,
