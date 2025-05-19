@@ -22,5 +22,5 @@ data class SurveyResult(
     val morningNormalizedScore: Double,
     val eveningNormalizedScore: Double,
     val chronotypeIndex: Double,
-    val chronotypeType: CronoTime
+    val chronoType: CronoTime
 )

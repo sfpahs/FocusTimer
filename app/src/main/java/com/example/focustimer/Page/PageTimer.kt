@@ -68,6 +68,7 @@ fun DualStopwatchApp(
     val activeTimer by viewModel.activeTimer.collectAsState()
     val time by viewModel.time.collectAsState()
     val timerSetting by viewModel.setting.collectAsState()
+    val mul by viewModel.mul.collectAsState()
 
     DisposableEffect(Unit) {
         // 1. ServiceConnection 객체 정의
@@ -234,10 +235,10 @@ fun DualStopwatchApp(
                 Text(text = "분단위", fontSize = 20.sp)
                 Switch(
                     modifier = Modifier,
-                    checked = mulTime,
+                    checked = (mul == 60),
                     onCheckedChange = {
                         viewModel.updateMul()
-                        (viewModel.mul.value == 60)
+
                     },
                     colors = SwitchDefaults.colors(
                         checkedTrackColor = Color.Red

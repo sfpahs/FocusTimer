@@ -99,7 +99,6 @@ fun weekHistoryApp(){
 
     }
 
-    //LoadingScreen(isLoading = isLoading)
 }
 
 //그래프관련

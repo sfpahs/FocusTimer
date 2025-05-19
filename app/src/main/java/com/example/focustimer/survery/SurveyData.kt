@@ -68,7 +68,7 @@ object SurveyCalculator {
             morningNormalizedScore = morningNormalizedScore,
             eveningNormalizedScore = eveningNormalizedScore,
             chronotypeIndex = chronotypeIndex,
-            chronotypeType = chronotypeType
+            chronoType = chronotypeType
         )
     }
 

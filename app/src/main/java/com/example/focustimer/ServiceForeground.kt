@@ -19,6 +19,7 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.example.focustimer.utils.MyIntents
+import com.example.shared.model.DateTimeWrapper
 import com.example.shared.Myfirebase.saveHistoryData
 import com.example.shared.model.HistoryData
 import com.example.shared.model.WatchViewModel
@@ -221,7 +222,7 @@ class TimerService : Service() {
         totalRestTime /= 60
 
         val historyData = HistoryData(
-            startTime = startTime,
+            startTime = DateTimeWrapper(startTime),
             category = setting.category,
             totalMinute = totalWorkTime + totalRestTime,
             workingMinute = totalWorkTime,

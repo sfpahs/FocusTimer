@@ -1,7 +1,6 @@
 package com.example.focustimer.survery
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,23 +27,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.focustimer.LocalNavController
-import com.example.focustimer.R
+import com.example.shared.Myfirebase.saveSurveyData
+import com.example.shared.model.CronoTimeViewModel
 import kotlinx.coroutines.launch
 
 // SurveyScreen.kt
 @Preview()
 @Composable
-fun SurveyScreen(
-    viewModel: SurveyViewModel = SurveyViewModel(),
-) {
-
+fun SurveyScreen() {
+    val viewModel : SurveyViewModel by lazy { SurveyViewModel.getInstance() }
     val answers by viewModel.answers.collectAsState()
     val surveyCompleted by viewModel.surveyCompleted.collectAsState()
     val listState = rememberLazyListState()
@@ -80,13 +76,14 @@ fun SurveyScreen(
         }
     }
     if (surveyCompleted) {
-    Box(modifier = Modifier
-        .fillMaxSize()
-        .background(color = MaterialTheme.colorScheme.background)
-    ){
-        ResultScreen(viewModel = viewModel)
-    }
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .background(color = MaterialTheme.colorScheme.background)
+        ){
 
+            //todo firebase 크로노타입 업데이트
+            ResultScreen()
+        }
     }
 
 
@@ -101,11 +98,13 @@ fun SurveyScreen(
 @Preview
 @Composable
 fun ResultScreen(
-    viewModel: SurveyViewModel = SurveyViewModel()
 ) {
+    val viewModel : SurveyViewModel by lazy { SurveyViewModel.getInstance() }
     val result by viewModel.surveyResult.collectAsState()
     val navHostController = LocalNavController.current
+
     result?.let { surveyResult ->
+        saveSurveyData(surveyResult.chronoType)
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -123,7 +122,7 @@ fun ResultScreen(
 
             ResultCard(
                 title = "크로노타입(생체시계 유형)",
-                content = surveyResult.chronotypeType.name,
+                content = surveyResult.chronoType.name,
             )
 
             Spacer(modifier = Modifier.height(16.dp))

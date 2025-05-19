@@ -5,7 +5,9 @@ import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
 import com.example.shared.R
+import com.example.shared.model.CronoTime
 import com.example.shared.model.TimerSetting
+import com.example.shared.model.toMap
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
@@ -116,9 +118,4 @@ fun clearLocalData(context: Context) {
     // SharedPreferences 초기화
     val sharedPreferences = context.getSharedPreferences("APP_PREFERENCES", Context.MODE_PRIVATE)
     sharedPreferences.edit().clear().apply()
-}
-
-fun updateCronotype(cronoName : String){
-    val reference = MyFireBase.getDataBase()
-
 }

@@ -21,13 +21,15 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.ViewModel
+import com.example.focustimer.HistoryViewModel
 import com.example.shared.Myfirebase.loadDayHistoryData
 import com.example.shared.model.WatchViewModel
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.auth
 
 data class Event(
     val id: Int,
@@ -38,28 +40,6 @@ data class Event(
     val durationMinutes: Int   // 분 단위
 )
 
-fun loadEvent(dates : List<LocalDate>) : List<Event>{
-    val viewModel : WatchViewModel by lazy { WatchViewModel.getInstance() }
-    viewModel.loadTimerSettings(FirebaseAuth.getInstance().currentUser!!.uid)
-    val timerSettings = viewModel.timerSettings
-    var list = mutableListOf<Event>()
-
-    var id = 1
-    dates.forEach { date ->
-        loadDayHistoryData(date = date){ dataList ->
-            dataList.forEach { data ->
-                list.add(Event(
-                    id = id++,
-                    title = timerSettings.value.get(data.category).name,
-                    date = date,
-                    startHour = data.startTime.hour,
-                    startMinute = data.startTime.minute,
-                    durationMinutes = data.totalMinute))
-            }
-        }
-    }
-    return list
-}
 
 fun formatHour12h(hour: Int): String =
     when {
@@ -71,12 +51,18 @@ fun formatHour12h(hour: Int): String =
 
 @Composable
 fun WeeklySchedule(startDate : LocalDate) {
-    val startDate = startDate.with(java.time.DayOfWeek.MONDAY)
-    val days = (0..6).map { startDate.plusDays(it.toLong()) }
+    val startDay = startDate.with(java.time.DayOfWeek.MONDAY)
+    val days = (0..6).map { startDay.plusDays(it.toLong()) }
     val hours = (0..23).toList()
+    val viewModel : HistoryViewModel by lazy { HistoryViewModel.getInstance() }
+    val events by viewModel.events.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.loadEventsForDates(days)
+    }
 
 //todo 데이터 교체작업
-    val events = loadEvent(dates = days)
+
 //        listOf(
 //        Event(1, "아침 운동", today, 6, 30, 60),
 //        Event(2, "회의", today, 10, 0, 30),

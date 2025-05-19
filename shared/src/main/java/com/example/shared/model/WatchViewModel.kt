@@ -10,31 +10,23 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class WatchViewModel : ViewModel() {
-    companion object {
-        // 싱글톤 인스턴스
-        private var instance: WatchViewModel? = null
-        // 인스턴스 가져오기
-        fun getInstance(): WatchViewModel {
-            if (instance == null) {
-                instance = WatchViewModel()
-            }
-            return instance!!
-        }
-    }
+    private val database = FirebaseDatabase.getInstance().reference
 
     private val _timerSettings = MutableStateFlow<List<TimerSetting>>(emptyList())
     val timerSettings: StateFlow<List<TimerSetting>> = _timerSettings
+
     private val _setting = MutableStateFlow(TimerSetting())
     val setting : StateFlow<TimerSetting> = _setting
 
     private val _activeTimer = MutableStateFlow(0)
     val activeTimer : StateFlow<Int> = _activeTimer
+
     private val _time = MutableStateFlow(0)
     val time : StateFlow<Int> = _time
-    private val database = FirebaseDatabase.getInstance().reference
 
     private val _mul = MutableStateFlow(1)
     val mul : StateFlow<Int> = _mul
+
     fun updateMul(){
         if(mul.value ==1)
         _mul.value = 60
@@ -85,6 +77,19 @@ class WatchViewModel : ViewModel() {
     }
     fun resetTimer(){
         _time.value = 0
+    }
+
+
+    companion object {
+        // 싱글톤 인스턴스
+        private var instance: WatchViewModel? = null
+        // 인스턴스 가져오기
+        fun getInstance(): WatchViewModel {
+            if (instance == null) {
+                instance = WatchViewModel()
+            }
+            return instance!!
+        }
     }
 
 }

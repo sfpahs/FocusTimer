@@ -1,6 +1,7 @@
 package com.example.focustimer.survery
 
 import androidx.lifecycle.ViewModel
+import com.example.shared.model.WatchViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,6 +17,7 @@ class SurveyViewModel : ViewModel() {
     private val _surveyResult = MutableStateFlow<SurveyResult?>(null)
     val surveyResult: StateFlow<SurveyResult?> = _surveyResult.asStateFlow()
 
+
     fun updateAnswer(questionIndex: Int, score: Int) {
         val updatedAnswers = _answers.value.toMutableMap()
         updatedAnswers[questionIndex] = score
@@ -29,7 +31,15 @@ class SurveyViewModel : ViewModel() {
         }
     }
 
-    fun isSurveyComplete(): Boolean {
-        return _answers.value.size == SurveyData.questions.size
+    companion object {
+        // 싱글톤 인스턴스
+        private var instance: SurveyViewModel? = null
+        // 인스턴스 가져오기
+        fun getInstance(): SurveyViewModel {
+            if (instance == null) {
+                instance = SurveyViewModel()
+            }
+            return instance!!
+        }
     }
 }

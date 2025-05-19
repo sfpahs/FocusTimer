@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.runtime.CompositionLocalProvider
 import com.example.focustimer.LocalNavController
+import com.example.shared.model.CronoTimeViewModel
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.WeekFields
@@ -29,26 +30,19 @@ enum class ScheduleViewType {
     DAILY, WEEKLY, MONTHLY
 }
 
-@Preview
-@Composable
-fun ScheduleContainerPagePreview() {
-    // Preview에서 NavController 제공
-    val navController = rememberNavController()
-    CompositionLocalProvider(LocalNavController provides navController) {
-        ScheduleContainerPage()
-    }
-}
 
 @Composable
 fun ScheduleContainerPage() {
+    val cronoViewmodel : CronoTimeViewModel by lazy{ CronoTimeViewModel.getInstance()}
     val navController = LocalNavController.current
     var hasTakenSurvey by remember { mutableStateOf(false) }
     var selectedViewType by remember { mutableStateOf(ScheduleViewType.WEEKLY) }
-
+    val cronoType by cronoViewmodel.surveyData.collectAsState()
+    cronoViewmodel.loadSurveyData()
     // 날짜 관련 상태
     var currentDate by remember { mutableStateOf(LocalDate.now()) }
     var showDatePicker by remember { mutableStateOf(false) }
-
+    val name = cronoType.name
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -119,8 +113,8 @@ fun ScheduleContainerPage() {
                 ScheduleViewType.WEEKLY -> {
                     // 주간 스케줄 페이지 (이미 구현됨)
                     // currentDate를 기준으로 주의 시작일을 계산하여 전달
-                    val weekStart = currentDate.with(WeekFields.of(Locale.getDefault()).dayOfWeek(), 1)
-                    WeeklyScheduleSampleScreen(startDate = weekStart)
+                    val weekStart = currentDate
+                    WeeklySchedule(startDate = weekStart)
                 }
                 ScheduleViewType.MONTHLY -> {
                     // 월간 스케줄 페이지 (구현 예정)
@@ -282,24 +276,4 @@ fun MonthYearPickerDialog(
             }
         }
     )
-}
-
-// WeeklyScheduleSampleScreen 수정 - startDate를 파라미터로 받도록 변경
-@Composable
-fun WeeklyScheduleSampleScreen(startDate: LocalDate = LocalDate.now().with(java.time.DayOfWeek.MONDAY)) {
-    val sampleEvents = listOf(
-        Event(1, "아침 운동", startDate, 6, 30, 60),
-        Event(2, "회의", startDate, 10, 0, 30),
-        Event(3, "점심 식사", startDate, 12, 0, 60),
-        Event(4, "스터디", startDate.plusDays(1), 20, 0, 90),
-        Event(5, "저녁 약속", startDate.plusDays(3), 18, 30, 120)
-    )
-
-    Box(modifier = Modifier
-        .background(Color.White)) {
-        WeeklySchedule(
-            startDate = startDate,
-            //events = sampleEvents
-        )
-    }
 }
