@@ -43,9 +43,8 @@ import kotlinx.coroutines.launch
 @Preview
 @Composable
 fun ExplanationPager(
-   // pages: List<ExplanationPage>
 ) {
-    //val navHostController = LocalNavController.current
+    val navHostController = LocalNavController.current
     val pages = listOf(
         ExplanationPage(R.drawable.img1, "타이머 설명", "작업 시간과 휴식 시간을 설정하여 효율적인 작업 사이클을 만들 수 있습니다.\n" +
                 "시간이 끝나면 자동으로 다음 단계로 넘어가며, 알림으로 알려드립니다.\n" +
@@ -155,13 +154,13 @@ fun ExplanationPager(
             }
         }
         //버튼
-       // if (pagerState.currentPage == pages.lastIndex) {
+       if (pagerState.currentPage == pages.lastIndex) {
 
             Button(
                 colors = ButtonDefaults.buttonColors(containerColor = colorResource(R.color.myButtonColor)),
                 onClick =
                 {
-           //         navHostController.navigate("main")
+                    navHostController.navigate("main")
                 },
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -171,7 +170,7 @@ fun ExplanationPager(
             ) {
                 Text("메인화면으로 가기")
             }
-        //}
+        }
     }
 }
 

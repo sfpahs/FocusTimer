@@ -15,7 +15,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -105,10 +109,22 @@ fun MainPage() {
                     uid = user.uid,
                     onComplete = { name -> userName = name!! })
                 if(!userName.equals("")) Text(text = userName + " 님", color = colorResource(R.color.myBlack))
+
             }
-
-
         }
+        // 여기에 도움말 아이콘 추가
+        IconButton(
+            onClick = {
+                navHostController.navigate("explanation")
+            }
+        ) {
+            Icon(
+                Icons.Default.Info,
+                contentDescription = "도움말",
+                tint = colorResource(R.color.myBlack)
+            )
+        }
+
         Log.i("main", "MainPage: ${userName}")
         Button(
             onClick = { logOut(context = context)

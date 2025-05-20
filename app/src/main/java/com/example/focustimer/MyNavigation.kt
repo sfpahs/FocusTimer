@@ -35,6 +35,7 @@ import com.example.focustimer.Page.LoginScreen
 import com.example.focustimer.Page.signupPage
 import com.example.focustimer.Page.weekHistoryApp
 import com.example.focustimer.survery.SurveyScreen
+import com.example.focustimer.test.ExplanationPager
 import com.example.focustimer.test.ScheduleContainerPage
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
@@ -138,6 +139,7 @@ fun MyBottomNavi(navController: NavHostController = rememberNavController()) {
                 composable("signup") { signupPage() }
                 composable("signin") { LoginScreen() }
                 composable("timer") { DualStopwatchApp() }
+                composable("explanation"){ExplanationPager()}
 
             }
         }

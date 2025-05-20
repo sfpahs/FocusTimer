@@ -72,26 +72,16 @@ fun WeeklySchedule(startDate : LocalDate) {
     val creativeColor = Color(0xffffedcc)  // 반투명 주황색
     val workoutColor = Color(0xffccffcc)   // 반투명 초록색
     val sleepColor = Color(0xffe6cce6)     // 반투명 보라색
-
-
-    LaunchedEffect(Unit) {
-        historyViewModel.loadEventsForDates(days)
-    }
-
-//todo 데이터 교체작업
-
-//        listOf(
-//        Event(1, "아침 운동", today, 6, 30, 60),
-//        Event(2, "회의", today, 10, 0, 30),
-//        Event(3, "점심 식사", today, 12, 0, 60),
-//        Event(4, "스터디", today.plusDays(1), 20, 0, 90),
-//        Event(5, "저녁 약속", today.plusDays(3), 18, 30, 120)
-//    )
-
     val horizontalScrollState = rememberScrollState()
     val verticalScrollState = rememberScrollState()  // 수직 스크롤 상태 추가
     val dayHeight = 32
     val dayWidth = 55
+
+    LaunchedEffect(Unit) {
+        historyViewModel.loadEventsForDates(days)
+        verticalScrollState.scrollTo(600)
+    }
+
     // 외부 Column을 추가하고 verticalScroll 수정자 적용
     Column(
         modifier = Modifier.verticalScroll(verticalScrollState)
@@ -146,10 +136,6 @@ fun WeeklySchedule(startDate : LocalDate) {
                                 }
                             }
 
-                            //todo 여기에 크로노타입 그리는거 넣기
-
-
-
                             // 크로노타입 배경 그리기
                             // 크로노타입이 널이 아닌 경우에만 그리기
                             cronoType?.let { cronoTime ->
@@ -193,7 +179,6 @@ fun WeeklySchedule(startDate : LocalDate) {
                                         dayHeight = dayHeight
                                     )
                                 }
-
                                 // 수면 시간대 표시 (저녁~아침)
                                 if (cronoTime.sleep.start > cronoTime.wakeup.end) {
                                     // 취침 시간이 자정을 넘어가는 경우
@@ -216,15 +201,6 @@ fun WeeklySchedule(startDate : LocalDate) {
                                     )
                                 }
                             }
-
-
-
-
-
-
-
-
-
                             // 이벤트 표시
                             events.filter { it.date == date }.forEach { event ->
                                 val topOffset = (event.startHour * dayHeight) + (event.startMinute * dayHeight / 60)
@@ -246,11 +222,6 @@ fun WeeklySchedule(startDate : LocalDate) {
                                     )
                                 }
                             }
-
-
-
-
-
                         }
                     }
                 }
