@@ -59,7 +59,8 @@ class HistoryViewModel : ViewModel() {
                         date = date,
                         startHour = data.startTime.toLocalDateTime().hour,
                         startMinute = data.startTime.toLocalDateTime().minute,
-                        durationMinutes = data.totalMinute
+                        durationMinutes = data.totalMinute,
+                        category = data.category
                     )
                 )
             }

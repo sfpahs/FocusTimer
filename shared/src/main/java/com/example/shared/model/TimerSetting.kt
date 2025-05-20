@@ -1,8 +1,5 @@
 package com.example.shared.model
 
-import android.util.Log
-import com.google.firebase.database.DatabaseReference
-
 data class TimerSetting(
     val category: Int = 0,
     val name: String = "",
@@ -13,7 +10,7 @@ data class TimerSetting(
 
 fun TimerSetting.toMap(): Map<String, Any> {
     return mapOf(
-        "index" to category,
+        "category" to category,
         "name" to name,
         "backgroundColor" to backgroundColor,
         "workTime" to workTime,

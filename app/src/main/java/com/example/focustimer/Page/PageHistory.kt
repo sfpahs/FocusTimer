@@ -5,7 +5,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -19,8 +23,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import co.yml.charts.axis.AxisData
 import co.yml.charts.common.components.Legends
 import co.yml.charts.common.extensions.getMaxElementInYAxis
@@ -35,6 +41,7 @@ import co.yml.charts.ui.barchart.models.BarStyle
 import co.yml.charts.ui.barchart.models.GroupBar
 import co.yml.charts.ui.barchart.models.GroupBarChartData
 import co.yml.charts.ui.barchart.models.SelectionHighlightData
+import com.example.focustimer.LocalNavController
 import com.example.shared.Myfirebase.loadWeekHistoryData
 import com.example.shared.model.WatchViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -51,11 +58,14 @@ fun weekHistoryApp(){
     val viewModel by lazy { WatchViewModel.getInstance() }
     var isLoading by remember { mutableStateOf(true) }
     val timerSettings by viewModel.timerSettings.collectAsState()
+    val navController = LocalNavController.current
+    var hasTakenSurvey by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     var graphSetting by remember { mutableStateOf<Pair<LegendsConfig, GroupBarChartData>?>(null) }
     // TODO: 이후에 weekHistoryGraph에 세팅넣어서 색상하고 기록데이터 들고와서 그래프그리기
     // FIXME: 이거 해결해라 임마
 
+// 테스트를 완료하지 않았을 경우 테스트 버튼 표시
 
     if(timerSettings.isEmpty()){
         Column(modifier = Modifier.fillMaxSize(),
@@ -78,6 +88,25 @@ fun weekHistoryApp(){
                     .background(color = Color.White),
                 verticalArrangement = Arrangement.Center
             ) {
+                if (!hasTakenSurvey) {
+                    Button(
+                        onClick = { navController.navigate("survey") },
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF90CAF9)
+                        )
+                    ) {
+                        Text(
+                            text = "성향 테스트 하러가기",
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(8.dp)
+                        )
+                    }
+                }
+
+
                 StackedBarChart(  // 스택형 바 차트 컴포넌트
                     modifier = Modifier
                         .height(400.dp),

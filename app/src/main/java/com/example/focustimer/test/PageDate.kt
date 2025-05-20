@@ -34,8 +34,7 @@ enum class ScheduleViewType {
 @Composable
 fun ScheduleContainerPage() {
     val cronoViewmodel : CronoTimeViewModel by lazy{ CronoTimeViewModel.getInstance()}
-    val navController = LocalNavController.current
-    var hasTakenSurvey by remember { mutableStateOf(false) }
+
     var selectedViewType by remember { mutableStateOf(ScheduleViewType.WEEKLY) }
     val cronoType by cronoViewmodel.surveyData.collectAsState()
     cronoViewmodel.loadSurveyData()
@@ -48,24 +47,7 @@ fun ScheduleContainerPage() {
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        // 테스트를 완료하지 않았을 경우 테스트 버튼 표시
-        if (!hasTakenSurvey) {
-            Button(
-                onClick = { navController.navigate("survey") },
-                modifier = Modifier
-                    .fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF90CAF9)
-                )
-            ) {
-                Text(
-                    text = "성향 테스트 하러가기",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(8.dp)
-                )
-            }
-        }
+
 
         // 연도 및 월 선택 UI
         DateNavigationBar(

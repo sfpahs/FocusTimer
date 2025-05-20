@@ -76,7 +76,6 @@ fun MainPage() {
                 val setting = timerSettings[index]
                 myBox(
                     modifier = Modifier.aspectRatio(1f),
-
                     timerSetting = setting
                 )
             }

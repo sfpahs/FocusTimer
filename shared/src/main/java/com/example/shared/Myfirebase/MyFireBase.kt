@@ -45,7 +45,7 @@ fun saveDefaultUserSettingFireBase(name : String, context: Context) {
     val userRef  = MyFireBase.getDataBase()
     val timerSettingsRef = userRef
         .child("timersettings")
-       // .child("timer")
+
 
     val timerSettings = listOf(
         TimerSetting(

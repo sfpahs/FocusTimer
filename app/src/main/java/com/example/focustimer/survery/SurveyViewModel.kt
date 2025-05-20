@@ -22,6 +22,8 @@ class SurveyViewModel : ViewModel() {
         val updatedAnswers = _answers.value.toMutableMap()
         updatedAnswers[questionIndex] = score
         _answers.value = updatedAnswers
+
+
     }
 
     fun completeSurvey() {
@@ -30,7 +32,11 @@ class SurveyViewModel : ViewModel() {
             _surveyCompleted.value = true
         }
     }
-
+    fun resetAnswers() {
+        _answers.value = mutableMapOf()
+        _surveyCompleted.value = false
+        _surveyResult.value = null
+    }
     companion object {
         // 싱글톤 인스턴스
         private var instance: SurveyViewModel? = null

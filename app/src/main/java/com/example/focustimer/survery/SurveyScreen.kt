@@ -40,14 +40,13 @@ import kotlinx.coroutines.launch
 @Preview()
 @Composable
 fun SurveyScreen() {
+
     val viewModel : SurveyViewModel by lazy { SurveyViewModel.getInstance() }
     val answers by viewModel.answers.collectAsState()
     val surveyCompleted by viewModel.surveyCompleted.collectAsState()
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
-
     val questions = SurveyData.questions
-
     Text(
         text = "1=전혀 그렇지 않다, 5=매우 그렇다",
         style = MaterialTheme.typography.labelMedium,
@@ -200,7 +199,9 @@ fun ResultScreen(
             Row {
 
                 Button(
-                    onClick = {navHostController.navigate("date")},
+                    onClick = {
+                        viewModel.resetAnswers()
+                              },
                     modifier = Modifier.fillMaxWidth(0.5f)
                 ) {
                     Text("다시 검사하기")
