@@ -1,4 +1,4 @@
-package com.example.focustimer.test
+package com.example.focustimer.Page
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,7 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.zIndex
 import com.example.focustimer.HistoryViewModel
 import com.example.shared.model.CronoTimeViewModel
-import com.example.shared.model.WatchViewModel
+import com.example.shared.model.TimerViewModel
 import com.example.shared.model.time
 
 data class Event(
@@ -58,7 +58,7 @@ fun WeeklySchedule(startDate : LocalDate) {
     val hours = (0..23).toList()
     val historyViewModel : HistoryViewModel by lazy { HistoryViewModel.getInstance() }
     val cronoTimeViewModel : CronoTimeViewModel by lazy { CronoTimeViewModel.getInstance() }
-    val viewModel : WatchViewModel by lazy { WatchViewModel.getInstance() }
+    val viewModel : TimerViewModel by lazy { TimerViewModel.getInstance() }
     val timerSettings = viewModel.timerSettings.collectAsState()
     val timersetting = timerSettings.value
 

@@ -8,8 +8,8 @@ import android.os.IBinder
 import android.util.Log
 import androidx.navigation.NavHostController
 import com.example.focustimer.utils.MyIntents
-import com.example.shared.model.WatchData
-import com.example.shared.model.WatchViewModel
+import com.example.shared.model.Timer
+import com.example.shared.model.TimerViewModel
 import com.google.android.gms.wearable.MessageClient
 import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.PutDataMapRequest
@@ -25,7 +25,7 @@ class ServiceWatchCommunication : Service(), MessageClient.OnMessageReceivedList
 
     private val navController: NavHostController? = null
 
-    private val viewModel by lazy { WatchViewModel.getInstance() }
+    private val viewModel by lazy { TimerViewModel.getInstance() }
 
     inner class LocalBinder : Binder() {
         fun getService(): ServiceWatchCommunication = this@ServiceWatchCommunication
@@ -93,9 +93,9 @@ class ServiceWatchCommunication : Service(), MessageClient.OnMessageReceivedList
             try {
                 val time = viewModel.time.value
                 val active = viewModel.activeTimer.value
-                val setting = viewModel.setting.value
+                val setting = viewModel.currentSetting.value
 
-                val watchData = WatchData(timerSetting = setting, activeTimer = active, time = time)
+                val watchData = Timer(timerSetting = setting, activeTimer = active, time = time)
                 val gson = Gson()
                 val jsonWatchData = gson.toJson(watchData)
                 val request = PutDataMapRequest.create("/timer_status").apply {

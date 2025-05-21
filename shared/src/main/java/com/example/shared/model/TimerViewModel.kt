@@ -9,14 +9,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class WatchViewModel : ViewModel() {
+class TimerViewModel : ViewModel() {
     private val database = FirebaseDatabase.getInstance().reference
 
     private val _timerSettings = MutableStateFlow<List<TimerSetting>>(emptyList())
     val timerSettings: StateFlow<List<TimerSetting>> = _timerSettings
 
-    private val _setting = MutableStateFlow(TimerSetting())
-    val setting : StateFlow<TimerSetting> = _setting
+    private val _currentSetting = MutableStateFlow(TimerSetting())
+    val currentSetting : StateFlow<TimerSetting> = _currentSetting
 
     private val _activeTimer = MutableStateFlow(0)
     val activeTimer : StateFlow<Int> = _activeTimer
@@ -24,14 +24,15 @@ class WatchViewModel : ViewModel() {
     private val _time = MutableStateFlow(0)
     val time : StateFlow<Int> = _time
 
+    //todo 데모용 나중에 지울예정
     private val _mul = MutableStateFlow(1)
     val mul : StateFlow<Int> = _mul
-
     fun updateMul(){
         if(mul.value ==1)
         _mul.value = 60
         else _mul.value = 1
     }
+
 
     //현재 타이머 정보
     fun loadTimerSettings(userId: String) {
@@ -62,11 +63,10 @@ class WatchViewModel : ViewModel() {
         }
     }
 
-    fun updateWatchInfo(newData : WatchData){
-
+    fun updateTimer(newData : Timer){
         _time.value = newData.time
         _activeTimer.value = newData.activeTimer
-        _setting.value = newData.timerSetting
+        _currentSetting.value = newData.timerSetting
     }
     fun setActiveTimer(value : Int){
         _activeTimer.value = value
@@ -82,11 +82,11 @@ class WatchViewModel : ViewModel() {
 
     companion object {
         // 싱글톤 인스턴스
-        private var instance: WatchViewModel? = null
+        private var instance: TimerViewModel? = null
         // 인스턴스 가져오기
-        fun getInstance(): WatchViewModel {
+        fun getInstance(): TimerViewModel {
             if (instance == null) {
-                instance = WatchViewModel()
+                instance = TimerViewModel()
             }
             return instance!!
         }

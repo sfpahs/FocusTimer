@@ -2,8 +2,8 @@ package com.example.focustimer
 import android.content.Intent
 import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.example.shared.model.WatchData
-import com.example.shared.model.WatchViewModel
+import com.example.shared.model.Timer
+import com.example.shared.model.TimerViewModel
 import com.google.android.gms.wearable.DataEvent
 import com.google.android.gms.wearable.DataEventBuffer
 import com.google.android.gms.wearable.DataMap
@@ -12,7 +12,7 @@ import com.google.android.gms.wearable.MessageEvent
 import com.google.android.gms.wearable.WearableListenerService
 import com.google.gson.Gson
 class WatchDataLayerListenerService : WearableListenerService() {
-    val viewModel : WatchViewModel by lazy { WatchViewModel.getInstance() }
+    val viewModel : TimerViewModel by lazy { TimerViewModel.getInstance() }
 
     companion object {
         private const val TAG = "WatchDataLayerService"
@@ -32,8 +32,8 @@ class WatchDataLayerListenerService : WearableListenerService() {
                     Log.d(TAG, "onDataChanged: $dataMap")
                     watchData?.let {
                         // 복호화된 WatchData 객체 사용
-                        viewModel.updateWatchInfo(
-                            newData = WatchData(
+                        viewModel.updateTimer(
+                            newData = Timer(
                                 timerSetting = it.timerSetting,
                                 activeTimer = it.activeTimer,
                                 time = it.time
@@ -48,7 +48,7 @@ class WatchDataLayerListenerService : WearableListenerService() {
         }
     }
 
-    fun decodeWatchData(dataMap: DataMap): WatchData? {
+    fun decodeWatchData(dataMap: DataMap): Timer? {
         try {
             // dataMap에서 JSON 문자열 가져오기
             val jsonWatchData = dataMap.getString("watch_data_json", "")
@@ -59,7 +59,7 @@ class WatchDataLayerListenerService : WearableListenerService() {
                 val gson  = Gson()
 
                 // JSON 문자열을 WatchData 객체로 역직렬화
-                return gson.fromJson(jsonWatchData, WatchData::class.java)
+                return gson.fromJson(jsonWatchData, Timer::class.java)
             }
             return null
         } catch (e: Exception) {

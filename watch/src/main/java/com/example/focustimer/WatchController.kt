@@ -26,7 +26,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.Text
-import com.example.shared.model.WatchViewModel
+import com.example.shared.model.TimerViewModel
 import com.google.android.gms.wearable.MessageClient
 import com.google.android.gms.wearable.Wearable
 import kotlinx.coroutines.CoroutineScope
@@ -44,8 +44,8 @@ fun WatchTimerControl(navController: NavHostController = rememberNavController()
     val context = LocalContext.current
     var isConnected by remember { mutableStateOf(false) }
 
-    val viewModel by lazy { WatchViewModel.getInstance() }
-    val timerSetting by viewModel.setting.collectAsState()
+    val viewModel by lazy { TimerViewModel.getInstance() }
+    val timerSetting by viewModel.currentSetting.collectAsState()
     val activeTimer by viewModel.activeTimer.collectAsState()
     val time by viewModel.time.collectAsState()
 

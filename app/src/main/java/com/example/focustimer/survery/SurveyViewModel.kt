@@ -1,7 +1,6 @@
 package com.example.focustimer.survery
 
 import androidx.lifecycle.ViewModel
-import com.example.shared.model.WatchViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

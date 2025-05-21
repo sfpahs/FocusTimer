@@ -45,7 +45,7 @@ import androidx.compose.ui.unit.sp
 import com.example.focustimer.LocalNavController
 import com.example.focustimer.Activity.MainActivity.Companion.timerStoppedReceiver
 import com.example.focustimer.TimerService
-import com.example.shared.model.WatchViewModel
+import com.example.shared.model.TimerViewModel
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
@@ -64,10 +64,10 @@ fun DualStopwatchApp(
     var serviceConnection by remember { mutableStateOf<ServiceConnection?>(null) }
     var timerService by remember { mutableStateOf<TimerService?>(null) }
 
-    val viewModel : WatchViewModel by lazy { WatchViewModel.getInstance() }
+    val viewModel : TimerViewModel by lazy { TimerViewModel.getInstance() }
     val activeTimer by viewModel.activeTimer.collectAsState()
     val time by viewModel.time.collectAsState()
-    val timerSetting by viewModel.setting.collectAsState()
+    val timerSetting by viewModel.currentSetting.collectAsState()
     val mul by viewModel.mul.collectAsState()
 
     DisposableEffect(Unit) {

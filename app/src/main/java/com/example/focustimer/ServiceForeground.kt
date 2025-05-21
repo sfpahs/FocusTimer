@@ -22,7 +22,7 @@ import com.example.focustimer.utils.MyIntents
 import com.example.shared.model.DateTimeWrapper
 import com.example.shared.Myfirebase.saveHistoryData
 import com.example.shared.model.HistoryData
-import com.example.shared.model.WatchViewModel
+import com.example.shared.model.TimerViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -42,8 +42,8 @@ class TimerService : Service() {
         const val ACTION_SWITCH = "com.example.pre_capstone.SWITCH"
     }
 
-    private val viewModel : WatchViewModel by lazy { WatchViewModel.getInstance() }
-    var setting = viewModel.setting.value
+    private val viewModel : TimerViewModel by lazy { TimerViewModel.getInstance() }
+    var setting = viewModel.currentSetting.value
     var time = viewModel.time.value
     var activeTimer = viewModel.activeTimer.value
 
@@ -286,7 +286,7 @@ class TimerService : Service() {
 
     private fun createNotification(): Notification {
 
-        setting = viewModel.setting.value
+        setting = viewModel.currentSetting.value
         time = viewModel.time.value
         activeTimer = viewModel.activeTimer.value
 

@@ -42,8 +42,8 @@ import com.example.focustimer.LocalNavController
 import com.example.focustimer.R
 import com.example.shared.Myfirebase.loadUserName
 import com.example.shared.Myfirebase.logOut
-import com.example.shared.model.WatchData
-import com.example.shared.model.WatchViewModel
+import com.example.shared.model.Timer
+import com.example.shared.model.TimerViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -51,11 +51,11 @@ import kotlinx.coroutines.launch
 @Preview
 @Composable
 fun MainPage() {
-
-    val viewModel : WatchViewModel by lazy { WatchViewModel.getInstance() }
+    val viewModel : TimerViewModel by lazy { TimerViewModel.getInstance() }
     val context = LocalContext.current
     val navHostController = LocalNavController.current
     val user = FirebaseAuth.getInstance().currentUser
+
     val timerSettings by viewModel.timerSettings.collectAsState()
     var isLoading by remember { mutableStateOf(true) }
     var userName by remember { mutableStateOf("") }
@@ -146,10 +146,11 @@ fun MainPage() {
 
     LoadingScreen(isLoading = isLoading)
 }
+
 @Composable
 fun myBox(modifier: Modifier, timerSetting: com.example.shared.model.TimerSetting){
     val navController = LocalNavController.current
-    val timerViewModel : WatchViewModel by lazy { WatchViewModel.getInstance() }
+    val timerViewModel : TimerViewModel by lazy { TimerViewModel.getInstance() }
     Column (modifier = modifier
         .fillMaxHeight(1f)
         .padding(10.dp)
@@ -164,8 +165,8 @@ fun myBox(modifier: Modifier, timerSetting: com.example.shared.model.TimerSettin
             shape = RoundedCornerShape(20.dp)
         )
         .clickable {
-            timerViewModel.updateWatchInfo(
-                newData = WatchData(timerSetting = timerSetting, activeTimer = 1, time = 0)
+            timerViewModel.updateTimer(
+                newData = Timer(timerSetting = timerSetting, activeTimer = 1, time = 0)
             )
             navController.navigate("timer") }
 

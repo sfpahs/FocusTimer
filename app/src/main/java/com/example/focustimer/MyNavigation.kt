@@ -21,8 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavController
-import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -35,10 +33,9 @@ import com.example.focustimer.Page.LoginScreen
 import com.example.focustimer.Page.signupPage
 import com.example.focustimer.Page.weekHistoryApp
 import com.example.focustimer.survery.SurveyScreen
-import com.example.focustimer.test.ExplanationPager
-import com.example.focustimer.test.ScheduleContainerPage
+import com.example.focustimer.Page.ExplanationPager
+import com.example.focustimer.Page.ScheduleContainerPage
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.auth
 
 
 val LocalNavController = compositionLocalOf<NavHostController> { error("No NavController found!") }
@@ -139,7 +136,7 @@ fun MyBottomNavi(navController: NavHostController = rememberNavController()) {
                 composable("signup") { signupPage() }
                 composable("signin") { LoginScreen() }
                 composable("timer") { DualStopwatchApp() }
-                composable("explanation"){ExplanationPager()}
+                composable("explanation"){ ExplanationPager() }
 
             }
         }

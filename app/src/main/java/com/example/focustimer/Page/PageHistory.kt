@@ -16,7 +16,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,10 +42,8 @@ import co.yml.charts.ui.barchart.models.GroupBarChartData
 import co.yml.charts.ui.barchart.models.SelectionHighlightData
 import com.example.focustimer.LocalNavController
 import com.example.shared.Myfirebase.loadWeekHistoryData
-import com.example.shared.model.WatchViewModel
+import com.example.shared.model.TimerViewModel
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.TimeZone
@@ -54,13 +51,11 @@ import java.util.TimeZone
 @Preview
 @Composable
 fun weekHistoryApp(){
-    val user = FirebaseAuth.getInstance().currentUser
-    val viewModel by lazy { WatchViewModel.getInstance() }
+    val viewModel by lazy { TimerViewModel.getInstance() }
     var isLoading by remember { mutableStateOf(true) }
     val timerSettings by viewModel.timerSettings.collectAsState()
     val navController = LocalNavController.current
     var hasTakenSurvey by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
     var graphSetting by remember { mutableStateOf<Pair<LegendsConfig, GroupBarChartData>?>(null) }
     // TODO: 이후에 weekHistoryGraph에 세팅넣어서 색상하고 기록데이터 들고와서 그래프그리기
     // FIXME: 이거 해결해라 임마
@@ -120,13 +115,7 @@ fun weekHistoryApp(){
         else LoadingScreen(isLoading = isLoading)
 
     }
-    user?.let {
-        scope.launch {
-            viewModel.loadTimerSettings(it.uid)
-            delay(1000)
-        }
 
-    }
 
 }
 

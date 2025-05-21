@@ -3,9 +3,9 @@ package com.example.focustimer
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.focustimer.test.Event
+import com.example.focustimer.Page.Event
 import com.example.shared.Myfirebase.loadDayHistoryData
-import com.example.shared.model.WatchViewModel
+import com.example.shared.model.TimerViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +16,7 @@ import java.time.LocalDate
 class HistoryViewModel : ViewModel() {
     private val _events = MutableStateFlow<List<Event>>(emptyList())
     val events: StateFlow<List<Event>> = _events
-    val viewModel : WatchViewModel by lazy { WatchViewModel.getInstance() }
+    val viewModel : TimerViewModel by lazy { TimerViewModel.getInstance() }
 
     companion object {
         // 싱글톤 인스턴스
@@ -53,7 +53,8 @@ class HistoryViewModel : ViewModel() {
         dates.forEach { date ->
             val historys = loadDayHistoryData(date = date)
             historys.forEach { data ->
-                list.add(Event(
+                list.add(
+                    Event(
                         id = id++,
                         title = timerSettings.get(data.category).name,
                         date = date,
