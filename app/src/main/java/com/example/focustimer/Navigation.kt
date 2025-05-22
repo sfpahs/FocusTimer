@@ -31,10 +31,11 @@ import androidx.navigation.compose.rememberNavController
 import com.example.focustimer.Page.DualStopwatchApp
 import com.example.focustimer.Page.LoginScreen
 import com.example.focustimer.Page.signupPage
-import com.example.focustimer.Page.weekHistoryApp
+import com.example.focustimer.Page.historyPage
 import com.example.focustimer.survery.SurveyScreen
 import com.example.focustimer.Page.ExplanationPager
 import com.example.focustimer.Page.ScheduleContainerPage
+import com.example.focustimer.test.EditBoxScreen
 import com.google.firebase.auth.FirebaseAuth
 
 
@@ -132,11 +133,12 @@ fun MyBottomNavi(navController: NavHostController = rememberNavController()) {
                 composable("main") { MainPage() }
                 composable("date") { ScheduleContainerPage() }
                 composable("survey") { SurveyScreen() }
-                composable("history") { weekHistoryApp() }
+                composable("history") { historyPage() }
                 composable("signup") { signupPage() }
                 composable("signin") { LoginScreen() }
                 composable("timer") { DualStopwatchApp() }
                 composable("explanation"){ ExplanationPager() }
+                composable("edit"){ EditBoxScreen() }
 
             }
         }

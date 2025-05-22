@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.shared.Myfirebase.loadTimerSettingsFireBase
+import com.example.shared.Myfirebase.updateTimerSetting
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -35,9 +36,9 @@ class TimerViewModel : ViewModel() {
 
 
     //현재 타이머 정보
-    fun loadTimerSettings(userId: String) {
+    fun loadTimerSettings() {
         viewModelScope.launch {
-            loadTimerSettingsFireBase(uid = userId,
+            loadTimerSettingsFireBase(
                 onSuccess = { settings ->
                     _timerSettings.value = settings
                     Log.i("firebase", "loadTimerSettings: ${settings}")
@@ -45,25 +46,19 @@ class TimerViewModel : ViewModel() {
                 onFailure = { e ->
                     Log.e("firebaseError", "loadTimerSettings: ${e.message}",)
                 })
-
         }
     }
-    fun saveTimerSettings(userId: String, settings: List<TimerSetting>) {
+
+    fun editTimerSetting(newSetting : TimerSetting){
         viewModelScope.launch {
-            val updates = settings.associateBy { it.category.toString() }
-            database.child("users").child(userId).child("settings").child("timer")
-                .setValue(updates)
-                .addOnSuccessListener {
-                    _timerSettings.value = settings // 로컬 상태 업데이트
-                }
-                .addOnFailureListener { exception ->
-                    Log.e("viewModelRoutin", "saveTimerSettings: ${exception.message}",)
-                    // 실패 처리 (로그 출력 등)
-                }
+            updateTimerSetting(
+                id = newSetting.category,
+                newSetting = newSetting,
+                )
         }
     }
 
-    fun updateTimer(newData : Timer){
+    fun setTimer(newData : Timer){
         _time.value = newData.time
         _activeTimer.value = newData.activeTimer
         _currentSetting.value = newData.timerSetting

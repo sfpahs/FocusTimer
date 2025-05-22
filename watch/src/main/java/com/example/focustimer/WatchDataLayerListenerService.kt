@@ -32,7 +32,7 @@ class WatchDataLayerListenerService : WearableListenerService() {
                     Log.d(TAG, "onDataChanged: $dataMap")
                     watchData?.let {
                         // 복호화된 WatchData 객체 사용
-                        viewModel.updateTimer(
+                        viewModel.setTimer(
                             newData = Timer(
                                 timerSetting = it.timerSetting,
                                 activeTimer = it.activeTimer,

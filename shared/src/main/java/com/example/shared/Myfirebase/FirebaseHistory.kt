@@ -6,12 +6,10 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import com.example.shared.model.CronoTime
 import com.example.shared.model.HistoryData
-import com.google.firebase.Firebase
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.database
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -21,12 +19,12 @@ import kotlin.coroutines.suspendCoroutine
 
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun saveHistoryData(saveData : HistoryData, uid : String){
-    val historyRef = MyFireBase.getTodayRef().push()
+fun saveHistoryData(saveData : HistoryData){
+    val historyRef = MyFireBase.getDayRef().push()
     historyRef.setValue(saveData)
         .addOnSuccessListener { Log.i("firebase", "saveHistoryData: save Success") }
         .addOnFailureListener {e -> Log.e("firebaseError", "saveHistoryData: ${e.message}") }
-    updateTodayHistoryData(saveData, uid)
+    updateTodayHistoryData(saveData)
 }
 
 @SuppressLint("NewApi")
@@ -36,7 +34,7 @@ suspend fun loadDayHistoryData(date : LocalDate) : List<HistoryData>{
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
         val fomattedDate = date.format(formatter)
 
-        MyFireBase.getDataBase()
+        MyFireBase.getUserRef()
             .child("history")
             .child(fomattedDate)
             .addListenerForSingleValueEvent(object : ValueEventListener {
@@ -68,9 +66,8 @@ suspend fun loadDayHistoryData(date : LocalDate) : List<HistoryData>{
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-fun updateTodayHistoryData(data: HistoryData, uid : String){
-
-    val historyRef = MyFireBase.getTodayRef()
+fun updateTodayHistoryData(data: HistoryData){
+    val historyRef = MyFireBase.getDayRef()
         .child("totalData")
         .child("${data.category}")
     var loadData : Pair<Int, Int> = Pair(0,0)
@@ -111,7 +108,6 @@ fun loadTodayHistoryData(historyRef : DatabaseReference, callback : (Pair<Int, I
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun loadWeekHistoryData(
-    uid: String,
     startMonday: LocalDateTime,
     callback: (List<List<Pair<Int, Int>>>) -> Unit
 ) {
@@ -125,8 +121,8 @@ fun loadWeekHistoryData(
 
     for (i in weekDates.indices) {
         val weekDate = weekDates[i]
-        val dateHistoryRef = Firebase.database.getReference("users")
-            .child(uid)
+        val dateHistoryRef = MyFireBase
+            .getUserRef()
             .child("history")
             .child(weekDate)
             .child("totalData")
@@ -201,7 +197,7 @@ fun calcWeekDate(inputDate: String): List<String> {
 
 fun saveSurveyData(x : CronoTime){
     val ref = MyFireBase
-        .getDataBase()
+        .getUserRef()
         .child("info")
     ref.setValue(x)
         .addOnSuccessListener {

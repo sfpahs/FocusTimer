@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import co.yml.charts.axis.AxisData
 import co.yml.charts.common.components.Legends
 import co.yml.charts.common.extensions.getMaxElementInYAxis
@@ -50,17 +51,13 @@ import java.util.TimeZone
 
 @Preview
 @Composable
-fun weekHistoryApp(){
+fun historyPage(){
     val viewModel by lazy { TimerViewModel.getInstance() }
     var isLoading by remember { mutableStateOf(true) }
     val timerSettings by viewModel.timerSettings.collectAsState()
     val navController = LocalNavController.current
     var hasTakenSurvey by remember { mutableStateOf(false) }
     var graphSetting by remember { mutableStateOf<Pair<LegendsConfig, GroupBarChartData>?>(null) }
-    // TODO: 이후에 weekHistoryGraph에 세팅넣어서 색상하고 기록데이터 들고와서 그래프그리기
-    // FIXME: 이거 해결해라 임마
-
-// 테스트를 완료하지 않았을 경우 테스트 버튼 표시
 
     if(timerSettings.isEmpty()){
         Column(modifier = Modifier.fillMaxSize(),
@@ -73,50 +70,61 @@ fun weekHistoryApp(){
     }
     else {
         weekHistoryGraph(timerSettings){ x->
-            graphSetting = Pair<LegendsConfig, GroupBarChartData>(x.first, x.second)
+            graphSetting = Pair(x.first, x.second)
             isLoading = false
 
         }
+
+
         if(graphSetting.isNotNull()&&!isLoading){
-            Column(modifier = Modifier
-                    .fillMaxSize()
-                    .background(color = Color.White),
-                verticalArrangement = Arrangement.Center
-            ) {
-                if (!hasTakenSurvey) {
-                    Button(
-                        onClick = { navController.navigate("survey") },
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF90CAF9)
-                        )
-                    ) {
-                        Text(
-                            text = "성향 테스트 하러가기",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(8.dp)
-                        )
-                    }
-                }
-
-
-                StackedBarChart(  // 스택형 바 차트 컴포넌트
-                    modifier = Modifier
-                        .height(400.dp),
-                    groupBarChartData = graphSetting!!.second
-                )
-                Legends(  // 차트 하단에 범례 표시
-                    legendsConfig = graphSetting!!.first
-                )
-            }
+            historyDrawGraph(
+                hasTakenSurvey = hasTakenSurvey,
+                navController = navController,
+                graphSetting = graphSetting
+            )
         }
         else LoadingScreen(isLoading = isLoading)
 
     }
 
 
+}
+
+@Composable
+fun historyDrawGraph(hasTakenSurvey : Boolean, navController : NavHostController, graphSetting : Pair<LegendsConfig,GroupBarChartData>?){
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .background(color = Color.White),
+        verticalArrangement = Arrangement.Center
+    ) {
+        if (!hasTakenSurvey) {
+            Button(
+                onClick = { navController.navigate("survey") },
+                modifier = Modifier
+                    .fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF90CAF9)
+                )
+            ) {
+                Text(
+                    text = "성향 테스트 하러가기",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(8.dp)
+                )
+            }
+        }
+
+
+        StackedBarChart(  // 스택형 바 차트 컴포넌트
+            modifier = Modifier
+                .height(400.dp),
+            groupBarChartData = graphSetting!!.second
+        )
+        Legends(  // 차트 하단에 범례 표시
+            legendsConfig = graphSetting!!.first
+        )
+    }
 }
 
 //그래프관련
@@ -217,9 +225,7 @@ fun weekHistoryGraph(timerSettings : List<com.example.shared.model.TimerSetting>
 }
 
 private fun createCustomGroupBarData(listSize: Int, barSize: Int, callback: (List<GroupBar>) -> Unit) {
-    val uid = FirebaseAuth.getInstance().uid
     loadWeekHistoryData(
-        uid = uid!!,
         startMonday = LocalDateTime.now(ZoneId.of("Asia/Seoul"))
     ) { data ->
         val groupBarList = mutableListOf<GroupBar>()

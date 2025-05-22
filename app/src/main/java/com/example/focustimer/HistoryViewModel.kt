@@ -45,7 +45,7 @@ class HistoryViewModel : ViewModel() {
 
 
     suspend fun loadEvent(dates : List<LocalDate>) : List<Event>{
-        viewModel.loadTimerSettings(FirebaseAuth.getInstance().currentUser!!.uid)
+        viewModel.loadTimerSettings()
         val timerSettings = viewModel.timerSettings.value
         var list = mutableListOf<Event>()
 

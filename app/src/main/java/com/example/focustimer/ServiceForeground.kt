@@ -46,10 +46,11 @@ class TimerService : Service() {
     var setting = viewModel.currentSetting.value
     var time = viewModel.time.value
     var activeTimer = viewModel.activeTimer.value
-
     private lateinit var myService: ServiceWatchCommunication
     private var bound = false
+
     private val connection = object : ServiceConnection{
+
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             val binder = service as ServiceWatchCommunication.LocalBinder
             myService = binder.getService()
@@ -59,7 +60,6 @@ class TimerService : Service() {
         override fun onServiceDisconnected(name: ComponentName?) {
             bound = false
         }
-
     }
     // 콜백 인터페이스 정의
     interface TimerCallback {
@@ -232,7 +232,7 @@ class TimerService : Service() {
 
         val user = FirebaseAuth.getInstance().currentUser
         user?.let {
-            saveHistoryData(historyData, it.uid)
+            saveHistoryData(historyData)
         }
 
         Log.d("TAG", "onReceive: 리시버던짐")

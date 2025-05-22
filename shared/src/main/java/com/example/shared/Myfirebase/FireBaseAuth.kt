@@ -58,9 +58,8 @@ fun checkEmailExists(email: String, callback: (Boolean) -> Unit) {
         }
 }
 
-fun loadUserName(uid: String, onComplete: (String?) -> Unit) {
-    val userRef = MyFireBase.getDataBase()
-
+fun loadUserName(onComplete: (String?) -> Unit) {
+    val userRef = MyFireBase.getUserRef()
     userRef.child("name").get()
         .addOnSuccessListener { dataSnapshot ->
             val name = dataSnapshot.value as? String

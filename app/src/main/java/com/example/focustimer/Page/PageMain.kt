@@ -1,7 +1,9 @@
 package com.example.focustimer.Page
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,11 +14,14 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -43,10 +48,12 @@ import com.example.focustimer.R
 import com.example.shared.Myfirebase.loadUserName
 import com.example.shared.Myfirebase.logOut
 import com.example.shared.model.Timer
+import com.example.shared.model.TimerSetting
 import com.example.shared.model.TimerViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.sql.Time
 
 @Preview
 @Composable
@@ -60,7 +67,29 @@ fun MainPage() {
     var isLoading by remember { mutableStateOf(true) }
     var userName by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
+    //firebase 정보받기
+    user?.let {
+        scope.launch {
+            viewModel.loadTimerSettings()
+            loadUserName{ name -> userName = name ?: ""}
+            delay(1000)
+            isLoading = false
+        }
 
+    }
+
+    SelectTimer(timerSettings = timerSettings)
+
+    MainAppBar(
+        context = context,
+        userName = userName,
+        navHostController = navHostController
+    )
+
+    LoadingScreen(isLoading = isLoading)
+}
+@Composable
+fun SelectTimer(timerSettings: List<TimerSetting>){
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -68,6 +97,7 @@ fun MainPage() {
             .background(Color.White),
         contentAlignment = Alignment.Center
     ) {
+
 
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
@@ -78,7 +108,7 @@ fun MainPage() {
         ) {
             items(timerSettings.size) { index ->
                 val setting = timerSettings[index]
-                myBox(
+                TimerBox(
                     modifier = Modifier.aspectRatio(1f),
                     timerSetting = setting
                 )
@@ -96,21 +126,20 @@ fun MainPage() {
         }
 
     }
+
+
+}
+
+@Composable
+fun MainAppBar(context : Context, userName : String, navHostController: NavHostController){
     Row (modifier = Modifier
         .fillMaxWidth()
         .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween){
         Box{
+            if(!userName.equals("")) Text(text = userName + " 님", color = colorResource(R.color.myBlack))
 
-            if (user != null) {
-
-                loadUserName(
-                    uid = user.uid,
-                    onComplete = { name -> userName = name!! })
-                if(!userName.equals("")) Text(text = userName + " 님", color = colorResource(R.color.myBlack))
-
-            }
         }
         // 여기에 도움말 아이콘 추가
         IconButton(
@@ -128,59 +157,67 @@ fun MainPage() {
         Log.i("main", "MainPage: ${userName}")
         Button(
             onClick = { logOut(context = context)
-            navHostController.navigate("signin")}
+                navHostController.navigate("signin")}
         ) { Text(text = "Log out")}
     }
 
-    user?.let {
-        scope.launch {
-            viewModel.loadTimerSettings(it.uid)
-            loadUserName(it.uid) { name ->
-                userName = name ?: ""
-            }
-            delay(1000)
-            isLoading = false
-        }
-
-    }
-
-    LoadingScreen(isLoading = isLoading)
 }
 
 @Composable
-fun myBox(modifier: Modifier, timerSetting: com.example.shared.model.TimerSetting){
+fun TimerBox(modifier: Modifier, timerSetting: TimerSetting){
     val navController = LocalNavController.current
     val timerViewModel : TimerViewModel by lazy { TimerViewModel.getInstance() }
-    Column (modifier = modifier
-        .fillMaxHeight(1f)
-        .padding(10.dp)
-        .shadow(
-        elevation = 8.dp,
-        shape = RoundedCornerShape(20.dp),
-        spotColor = Color.Black.copy(alpha = 0.25f)
-    )
-        .background(
-
-            color = Color(timerSetting.backgroundColor),
-            shape = RoundedCornerShape(20.dp)
-        )
-        .clickable {
-            timerViewModel.updateTimer(
-                newData = Timer(timerSetting = timerSetting, activeTimer = 1, time = 0)
+    Box(
+        modifier = modifier
+            .fillMaxHeight(1f)
+            .padding(10.dp)
+            .shadow(
+                elevation = 8.dp,
+                shape = RoundedCornerShape(20.dp),
+                spotColor = Color.Black.copy(alpha = 0.25f)
             )
-            navController.navigate("timer") }
+            .background(
+                color = Color(timerSetting.backgroundColor),
+                shape = RoundedCornerShape(20.dp)
+            )
+            .clickable {
+                timerViewModel.setTimer(
+                    newData = Timer(timerSetting = timerSetting, activeTimer = 1, time = 0)
+                )
+                navController.navigate("timer") },
+    ){
+        Icon(
+            imageVector = Icons.Default.Settings,
+            contentDescription = "Edit Timer",
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(8.dp)
+                .size(24.dp)
+                .clickable(
+                    // 아이콘 클릭 시 이벤트 전파 방지
+                    indication = rememberRipple(bounded = false),
+                    interactionSource = remember { MutableInteractionSource() }
+                ) {
+                    // edit 화면으로 이동하는 로직
+                    timerViewModel.setTimer(newData = Timer(timerSetting = timerSetting))
+                    navController.navigate("edit")
 
+                },
+            tint = colorResource(R.color.myBlack)
+        )
 
-
-        ,
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-        ){ Text(text = timerSetting.name,  fontSize = 25.sp, color = colorResource(R.color.myBlack))
-        Text(text = "work: ${timerSetting.workTime/60}분", color = colorResource(R.color.myBlack))
-        Text(text = "rest: ${timerSetting.restTime/60}분", color = colorResource(R.color.myBlack))}
+        Column (
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = timerSetting.name,  fontSize = 25.sp, color = colorResource(R.color.myBlack))
+            Text(text = "work: ${timerSetting.workTime/60}분", color = colorResource(R.color.myBlack))
+            Text(text = "rest: ${timerSetting.restTime/60}분", color = colorResource(R.color.myBlack))
+        }
+    }
 }
 @Composable
-fun addBox(modifier: Modifier, color : Color,text : String, category : Int, navHostController: NavHostController){
+fun AddBox(modifier: Modifier, color : Color, text : String, category : Int, navHostController: NavHostController){
     Column (modifier = modifier
         .fillMaxHeight(1f)
         .padding(10.dp)

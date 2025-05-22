@@ -19,7 +19,7 @@ class CronoTimeViewModel : ViewModel() {
     fun loadSurveyData() {
 
         val ref = MyFireBase
-            .getDataBase()
+            .getUserRef()
             .child("info")
 
         ref.addListenerForSingleValueEvent(object : ValueEventListener {

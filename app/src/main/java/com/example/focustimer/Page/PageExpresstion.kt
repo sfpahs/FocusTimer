@@ -44,6 +44,7 @@ import kotlinx.coroutines.launch
 fun ExplanationPager(
 ) {
     val navHostController = LocalNavController.current
+    val coroutineScope = rememberCoroutineScope()
     val pages = listOf(
         ExplanationPage(R.drawable.img1, "타이머 설명", "작업 시간과 휴식 시간을 설정하여 효율적인 작업 사이클을 만들 수 있습니다.\n" +
                 "시간이 끝나면 자동으로 다음 단계로 넘어가며, 알림으로 알려드립니다.\n" +
@@ -52,10 +53,7 @@ fun ExplanationPager(
         ExplanationPage(R.drawable.img1, "타이틀3", "설명3"),
         ExplanationPage(R.drawable.img1, "타이틀4", "설명4")
     )
-    //ExplanationPager(pages = explanationPages)
-
     val pagerState = rememberPagerState(pageCount = { pages.size })
-    val coroutineScope = rememberCoroutineScope()
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
