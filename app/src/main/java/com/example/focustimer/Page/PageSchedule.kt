@@ -59,7 +59,7 @@ fun WeeklySchedule(startDate : LocalDate) {
     val historyViewModel : HistoryViewModel by lazy { HistoryViewModel.getInstance() }
     val cronoTimeViewModel : CronoTimeViewModel by lazy { CronoTimeViewModel.getInstance() }
     val viewModel : TimerViewModel by lazy { TimerViewModel.getInstance() }
-    val timerSettings = viewModel.timerSettings.collectAsState()
+    val timerSettings = viewModel.subjects.collectAsState()
     val timersetting = timerSettings.value
 
 
@@ -211,7 +211,7 @@ fun WeeklySchedule(startDate : LocalDate) {
                                         .height(eventHeight.dp)
                                         .fillMaxWidth()
                                         .padding(horizontal = 2.dp)
-                                        .background(Color(viewModel.timerSettings.value.get(event.category).backgroundColor), shape = MaterialTheme.shapes.small),
+                                        .background(Color(viewModel.subjects.value.get(event.category).backgroundColor), shape = MaterialTheme.shapes.small),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     if((eventHeight>10))

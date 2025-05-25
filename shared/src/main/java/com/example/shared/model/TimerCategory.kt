@@ -1,7 +1,5 @@
 package com.example.shared.model
 
-import java.util.Locale.Category
-
 data class TimerOption(
     val id : Int = -1,
     val name : String = "",
@@ -11,7 +9,7 @@ data class TimerOption(
     val restTime : Int = -1,
 )
 object TimerOptions{
-    val option = listOf(
+    val list = listOf(
         TimerOption(
             id = 1,
             name = "10/2 Rule",

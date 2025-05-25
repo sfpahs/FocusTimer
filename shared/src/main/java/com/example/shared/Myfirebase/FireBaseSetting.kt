@@ -3,37 +3,40 @@ package com.example.shared.Myfirebase
 import android.content.Context
 import android.util.Log
 import com.example.shared.R
-import com.example.shared.model.TimerSetting
+import com.example.shared.model.subject
 import com.example.shared.model.toMap
 
 fun saveDefaultUserSettingFireBase(name : String, context: Context) {
     val updates = HashMap<String, Any>()
-    val timerSettings = listOf(
-        TimerSetting(
+    val subjects = listOf(
+        subject(
             0,
             "암기",
             context.getColor(R.color.myCategory1).toLong(),
             50 * 60,
-            10 * 60
+            10 * 60,
+            recomendTimer = 0,
         ),
-        TimerSetting(
+        subject(
             1,
             "연산",
             context.getColor(R.color.myCategory2).toLong(),
             3 * 60,
-            1 * 60
+            1 * 60,
+            recomendTimer = 2,
         ),
-        TimerSetting(
+        subject(
             2,
             "이해",
             context.getColor(R.color.myCategory3).toLong(),
             55 * 60,
-            5 * 60
+            5 * 60,
+            recomendTimer = 3,
         )
     )
 
-    timerSettings.forEach { setting ->
-        updates["${setting.category}"] = setting.toMap()
+    subjects.forEach { setting ->
+        updates["${setting.id}"] = setting.toMap()
     }
 
     val userRef  = MyFireBase.getUserRef()
@@ -54,7 +57,7 @@ fun saveDefaultUserSettingFireBase(name : String, context: Context) {
         }
 }
 
-fun loadTimerSettingsFireBase(onSuccess: (List<TimerSetting>) -> Unit, onFailure: (Exception) -> Unit) {
+fun loadTimerSettingsFireBase(onSuccess: (List<subject>) -> Unit, onFailure: (Exception) -> Unit) {
     MyFireBase.getUserRef()
     .child("timersettings")
 
@@ -64,12 +67,12 @@ fun loadTimerSettingsFireBase(onSuccess: (List<TimerSetting>) -> Unit, onFailure
             val result = task.result
             Log.i("firebase", "loadTimerSettingsFireBase: ${result}")
             if (result.exists()) {
-                val timerSettings = mutableListOf<TimerSetting>()
+                val subjects = mutableListOf<subject>()
                 for (snapshot in result.children) {
-                    val setting = snapshot.getValue(TimerSetting::class.java)
-                    setting?.let { timerSettings.add(it) }
+                    val setting = snapshot.getValue(subject::class.java)
+                    setting?.let { subjects.add(it) }
                 }
-                onSuccess(timerSettings)
+                onSuccess(subjects)
             } else {
                 onSuccess(emptyList()) // 데이터가 없을 경우 빈 리스트 반환
             }
@@ -85,7 +88,7 @@ fun clearLocalData(context: Context) {
     sharedPreferences.edit().clear().apply()
 }
 
-fun updateTimerSetting(id : Int, newSetting: TimerSetting){
+fun updateTimerSetting(id : Int, newSetting: subject){
     val ref = MyFireBase.getUserRef()
         .child("timersettings")
         .child("$id")

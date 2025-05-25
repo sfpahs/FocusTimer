@@ -5,22 +5,22 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.shared.Myfirebase.loadTimerSettingsFireBase
 import com.example.shared.Myfirebase.updateTimerSetting
-import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class TimerViewModel : ViewModel() {
-    private val database = FirebaseDatabase.getInstance().reference
+    private val _subjects = MutableStateFlow<List<subject>>(emptyList())
+    val subjects: StateFlow<List<subject>> = _subjects
 
-    private val _timerSettings = MutableStateFlow<List<TimerSetting>>(emptyList())
-    val timerSettings: StateFlow<List<TimerSetting>> = _timerSettings
-
-    private val _currentSetting = MutableStateFlow(TimerSetting())
-    val currentSetting : StateFlow<TimerSetting> = _currentSetting
+    private val _currentSubject = MutableStateFlow(subject())
+    val currentSubject : StateFlow<subject> = _currentSubject
 
     private val _activeTimer = MutableStateFlow(0)
     val activeTimer : StateFlow<Int> = _activeTimer
+
+    private val _timerOptioin  = MutableStateFlow(TimerOption())
+    val timerOption : MutableStateFlow<TimerOption> = _timerOptioin
 
     private val _time = MutableStateFlow(0)
     val time : StateFlow<Int> = _time
@@ -34,13 +34,12 @@ class TimerViewModel : ViewModel() {
         else _mul.value = 1
     }
 
-
     //현재 타이머 정보
-    fun loadTimerSettings() {
+    fun loadSubjects() {
         viewModelScope.launch {
             loadTimerSettingsFireBase(
                 onSuccess = { settings ->
-                    _timerSettings.value = settings
+                    _subjects.value = settings
                     Log.i("firebase", "loadTimerSettings: ${settings}")
                 },
                 onFailure = { e ->
@@ -49,10 +48,10 @@ class TimerViewModel : ViewModel() {
         }
     }
 
-    fun editTimerSetting(newSetting : TimerSetting){
+    fun editSubject(newSetting : subject){
         viewModelScope.launch {
             updateTimerSetting(
-                id = newSetting.category,
+                id = newSetting.id,
                 newSetting = newSetting,
                 )
         }
@@ -61,7 +60,7 @@ class TimerViewModel : ViewModel() {
     fun setTimer(newData : Timer){
         _time.value = newData.time
         _activeTimer.value = newData.activeTimer
-        _currentSetting.value = newData.timerSetting
+        _currentSubject.value = newData.subject
     }
     fun setActiveTimer(value : Int){
         _activeTimer.value = value
@@ -73,7 +72,6 @@ class TimerViewModel : ViewModel() {
     fun resetTimer(){
         _time.value = 0
     }
-
 
     companion object {
         // 싱글톤 인스턴스

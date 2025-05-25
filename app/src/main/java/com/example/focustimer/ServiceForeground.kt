@@ -43,7 +43,7 @@ class TimerService : Service() {
     }
 
     private val viewModel : TimerViewModel by lazy { TimerViewModel.getInstance() }
-    var setting = viewModel.currentSetting.value
+    var setting = viewModel.currentSubject.value
     var time = viewModel.time.value
     var activeTimer = viewModel.activeTimer.value
     private lateinit var myService: ServiceWatchCommunication
@@ -223,7 +223,7 @@ class TimerService : Service() {
 
         val historyData = HistoryData(
             startTime = DateTimeWrapper(startTime),
-            category = setting.category,
+            category = setting.id,
             totalMinute = totalWorkTime + totalRestTime,
             workingMinute = totalWorkTime,
             restMinute = totalRestTime,
@@ -286,7 +286,7 @@ class TimerService : Service() {
 
     private fun createNotification(): Notification {
 
-        setting = viewModel.currentSetting.value
+        setting = viewModel.currentSubject.value
         time = viewModel.time.value
         activeTimer = viewModel.activeTimer.value
 

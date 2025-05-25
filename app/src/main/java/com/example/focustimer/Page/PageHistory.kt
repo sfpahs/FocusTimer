@@ -44,7 +44,6 @@ import co.yml.charts.ui.barchart.models.SelectionHighlightData
 import com.example.focustimer.LocalNavController
 import com.example.shared.Myfirebase.loadWeekHistoryData
 import com.example.shared.model.TimerViewModel
-import com.google.firebase.auth.FirebaseAuth
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.TimeZone
@@ -54,7 +53,7 @@ import java.util.TimeZone
 fun historyPage(){
     val viewModel by lazy { TimerViewModel.getInstance() }
     var isLoading by remember { mutableStateOf(true) }
-    val timerSettings by viewModel.timerSettings.collectAsState()
+    val timerSettings by viewModel.subjects.collectAsState()
     val navController = LocalNavController.current
     var hasTakenSurvey by remember { mutableStateOf(false) }
     var graphSetting by remember { mutableStateOf<Pair<LegendsConfig, GroupBarChartData>?>(null) }
@@ -128,7 +127,7 @@ fun historyDrawGraph(hasTakenSurvey : Boolean, navController : NavHostController
 }
 
 //그래프관련
-fun weekHistoryGraph(timerSettings : List<com.example.shared.model.TimerSetting>, callback: (Pair<LegendsConfig, GroupBarChartData>) -> Unit) {
+fun weekHistoryGraph(subjects : List<com.example.shared.model.subject>, callback: (Pair<LegendsConfig, GroupBarChartData>) -> Unit) {
     val barSize = 5      // 각 그룹에 포함될 바의 개수 (3개 카테고리)
     val listSize = 7    // 차트에 표시할 그룹(X축 데이터 포인트)의 개수
     val yStepSize = 8
@@ -143,7 +142,7 @@ fun weekHistoryGraph(timerSettings : List<com.example.shared.model.TimerSetting>
 
         val listtest = mutableListOf<LegendLabel>()
 
-        timerSettings.map {element ->
+        subjects.map { element ->
             colorPaletteList.add(Color(element.backgroundColor))
             listtest.add(LegendLabel(color = Color(element.backgroundColor),name = element.name))
         }

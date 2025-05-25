@@ -37,7 +37,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.focustimer.LocalNavController
-import com.example.shared.model.TimerSetting
+import com.example.shared.model.subject
 import com.example.shared.model.TimerViewModel
 import kotlinx.coroutines.launch
 
@@ -48,7 +48,7 @@ import kotlinx.coroutines.launch
 fun EditBoxScreen(
 ) {
     val viewModel : TimerViewModel by lazy { TimerViewModel.getInstance() }
-    val currentSetting = viewModel.timerSettings.value.find { it.category == viewModel.currentSetting.value.category } ?: return
+    val currentSetting = viewModel.subjects.value.find { it.id == viewModel.currentSubject.value.id } ?: return
     var newName by remember { mutableStateOf(currentSetting.name) }
     var newColor by remember { mutableStateOf(currentSetting.backgroundColor) }
 
@@ -169,10 +169,10 @@ fun EditBoxScreen(
                 onClick = {
                     scope.launch {
 
-                        viewModel.editTimerSetting(
-                            newSetting = TimerSetting(
+                        viewModel.editSubject(
+                            newSetting = subject(
                                 name = newName,
-                                category = currentSetting.category,
+                                id = currentSetting.id,
                                 backgroundColor = newColor,
                                 restTime = currentSetting.restTime,
                                 workTime = currentSetting.workTime))

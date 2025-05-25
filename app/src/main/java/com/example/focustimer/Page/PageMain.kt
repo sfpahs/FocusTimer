@@ -48,12 +48,13 @@ import com.example.focustimer.R
 import com.example.shared.Myfirebase.loadUserName
 import com.example.shared.Myfirebase.logOut
 import com.example.shared.model.Timer
-import com.example.shared.model.TimerSetting
+import com.example.shared.model.TimerOption
+import com.example.shared.model.TimerOptions
+import com.example.shared.model.subject
 import com.example.shared.model.TimerViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.sql.Time
 
 @Preview
 @Composable
@@ -63,14 +64,14 @@ fun MainPage() {
     val navHostController = LocalNavController.current
     val user = FirebaseAuth.getInstance().currentUser
 
-    val timerSettings by viewModel.timerSettings.collectAsState()
+    val timerSettings by viewModel.subjects.collectAsState()
     var isLoading by remember { mutableStateOf(true) }
     var userName by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
     //firebase 정보받기
     user?.let {
         scope.launch {
-            viewModel.loadTimerSettings()
+            viewModel.loadSubjects()
             loadUserName{ name -> userName = name ?: ""}
             delay(1000)
             isLoading = false
@@ -78,7 +79,7 @@ fun MainPage() {
 
     }
 
-    SelectTimer(timerSettings = timerSettings)
+    SelectTimer(subjects = timerSettings)
 
     MainAppBar(
         context = context,
@@ -89,7 +90,7 @@ fun MainPage() {
     LoadingScreen(isLoading = isLoading)
 }
 @Composable
-fun SelectTimer(timerSettings: List<TimerSetting>){
+fun SelectTimer(subjects: List<subject>){
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -106,11 +107,11 @@ fun SelectTimer(timerSettings: List<TimerSetting>){
             verticalArrangement = Arrangement.Center
 
         ) {
-            items(timerSettings.size) { index ->
-                val setting = timerSettings[index]
+            items(subjects.size) { index ->
+                val setting = subjects[index]
                 TimerBox(
                     modifier = Modifier.aspectRatio(1f),
-                    timerSetting = setting
+                    subject = setting
                 )
             }
             //todo나중에 편집아이콘 만들고 넣기 - 최대개수랑 편집아이콘이랑 합쳐야함
@@ -164,7 +165,7 @@ fun MainAppBar(context : Context, userName : String, navHostController: NavHostC
 }
 
 @Composable
-fun TimerBox(modifier: Modifier, timerSetting: TimerSetting){
+fun TimerBox(modifier: Modifier, subject: subject){
     val navController = LocalNavController.current
     val timerViewModel : TimerViewModel by lazy { TimerViewModel.getInstance() }
     Box(
@@ -177,13 +178,27 @@ fun TimerBox(modifier: Modifier, timerSetting: TimerSetting){
                 spotColor = Color.Black.copy(alpha = 0.25f)
             )
             .background(
-                color = Color(timerSetting.backgroundColor),
+                color = Color(subject.backgroundColor),
                 shape = RoundedCornerShape(20.dp)
             )
             .clickable {
-                timerViewModel.setTimer(
-                    newData = Timer(timerSetting = timerSetting, activeTimer = 1, time = 0)
-                )
+                //유저가 저장한 것이 있는지
+                if(subject.selectedTimer != -1){
+
+                    timerViewModel.setTimer(
+                        newData = Timer(subject = subject, activeTimer = 1, time = 0),
+
+                    )
+                }
+                //없을 시에 추천 타이머로 실행
+                else{
+
+                    timerViewModel.setTimer(
+                        newData = Timer(subject = subject, activeTimer = 1, time = 0)
+                    )
+                }
+
+
                 navController.navigate("timer") },
     ){
         Icon(
@@ -199,7 +214,7 @@ fun TimerBox(modifier: Modifier, timerSetting: TimerSetting){
                     interactionSource = remember { MutableInteractionSource() }
                 ) {
                     // edit 화면으로 이동하는 로직
-                    timerViewModel.setTimer(newData = Timer(timerSetting = timerSetting))
+                    timerViewModel.setTimer(newData = Timer(subject = subject))
                     navController.navigate("edit")
 
                 },
@@ -210,9 +225,9 @@ fun TimerBox(modifier: Modifier, timerSetting: TimerSetting){
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = timerSetting.name,  fontSize = 25.sp, color = colorResource(R.color.myBlack))
-            Text(text = "work: ${timerSetting.workTime/60}분", color = colorResource(R.color.myBlack))
-            Text(text = "rest: ${timerSetting.restTime/60}분", color = colorResource(R.color.myBlack))
+            Text(text = subject.name,  fontSize = 25.sp, color = colorResource(R.color.myBlack))
+            Text(text = "work: ${subject.workTime/60}분", color = colorResource(R.color.myBlack))
+            Text(text = "rest: ${subject.restTime/60}분", color = colorResource(R.color.myBlack))
         }
     }
 }

@@ -56,8 +56,6 @@ fun DualStopwatchApp(
     val context = LocalContext.current
     var workTimer by remember { mutableStateOf(0) }
     var restTimer by remember { mutableStateOf(0) }
-    var mulTime by remember { mutableStateOf(false) }
-    var workCount by remember { mutableStateOf(1) }
     var stopwatchRunning by remember { mutableStateOf(false) }
     var isStopped by remember { mutableStateOf(true) }
     var isChecked by remember { mutableStateOf(true) }
@@ -67,7 +65,7 @@ fun DualStopwatchApp(
     val viewModel : TimerViewModel by lazy { TimerViewModel.getInstance() }
     val activeTimer by viewModel.activeTimer.collectAsState()
     val time by viewModel.time.collectAsState()
-    val timerSetting by viewModel.currentSetting.collectAsState()
+    val subject by viewModel.currentSubject.collectAsState()
     val mul by viewModel.mul.collectAsState()
 
     DisposableEffect(Unit) {
@@ -127,10 +125,10 @@ fun DualStopwatchApp(
         if (!stopwatchRunning && isStopped) {
             val intent = Intent(context, TimerService::class.java).apply {
                 action = TimerService.ACTION_START
-                putExtra("timerName", timerSetting.name)
-                putExtra("workTime", timerSetting.workTime)
-                putExtra("restTime", timerSetting.workTime)
-                putExtra("category", timerSetting.category)
+                putExtra("timerName", subject.name)
+                putExtra("workTime", subject.workTime)
+                putExtra("restTime", subject.workTime)
+                putExtra("category", subject.id)
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -180,7 +178,7 @@ fun DualStopwatchApp(
         StopwatchUI(
             modifier = Modifier.size(300.dp),
             isChecked = isChecked,
-            timerSetting = timerSetting,
+            subject = subject,
             activeTimer = activeTimer,
             time = time
         )
@@ -212,7 +210,7 @@ fun DualStopwatchApp(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = timerSetting.name, fontSize = 20.sp)
+            Text(text = subject.name, fontSize = 20.sp)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(text = "숫자 표시", fontSize = 20.sp)
                 Switch(
@@ -256,9 +254,11 @@ fun StopwatchUI(
     isChecked: Boolean,
     activeTimer : Int,
     time : Int,
-    timerSetting: com.example.shared.model.TimerSetting
+    subject: com.example.shared.model.subject
 ) {
-    val maxTime =if( activeTimer == 1 ) timerSetting.workTime else timerSetting.restTime
+    val categoryIndex = if(subject.selectedTimer != -1)subject.selectedTimer else subject.recomendTimer
+
+    val maxTime =if( activeTimer == 1 ) subject.workTime else subject.restTime
 
     Box(contentAlignment = Alignment.Center, modifier = modifier) {
         var step = 0f

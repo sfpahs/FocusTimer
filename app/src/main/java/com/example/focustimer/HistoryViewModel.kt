@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.focustimer.Page.Event
 import com.example.shared.Myfirebase.loadDayHistoryData
 import com.example.shared.model.TimerViewModel
-import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -45,8 +44,8 @@ class HistoryViewModel : ViewModel() {
 
 
     suspend fun loadEvent(dates : List<LocalDate>) : List<Event>{
-        viewModel.loadTimerSettings()
-        val timerSettings = viewModel.timerSettings.value
+        viewModel.loadSubjects()
+        val timerSettings = viewModel.subjects.value
         var list = mutableListOf<Event>()
 
         var id = 1
