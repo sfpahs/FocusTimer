@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import com.example.focustimer.LocalNavController
 import com.example.focustimer.Activity.MainActivity.Companion.timerStoppedReceiver
 import com.example.focustimer.TimerService
+import com.example.shared.model.TimerOptions
 import com.example.shared.model.TimerViewModel
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -125,10 +126,6 @@ fun DualStopwatchApp(
         if (!stopwatchRunning && isStopped) {
             val intent = Intent(context, TimerService::class.java).apply {
                 action = TimerService.ACTION_START
-                putExtra("timerName", subject.name)
-                putExtra("workTime", subject.workTime)
-                putExtra("restTime", subject.workTime)
-                putExtra("category", subject.id)
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -257,8 +254,9 @@ fun StopwatchUI(
     subject: com.example.shared.model.subject
 ) {
     val categoryIndex = if(subject.selectedTimer != -1)subject.selectedTimer else subject.recomendTimer
+    val timer = TimerOptions.list.get(categoryIndex)
+    val maxTime =if( activeTimer == 1 ) timer.workTime else timer.restTime
 
-    val maxTime =if( activeTimer == 1 ) subject.workTime else subject.restTime
 
     Box(contentAlignment = Alignment.Center, modifier = modifier) {
         var step = 0f

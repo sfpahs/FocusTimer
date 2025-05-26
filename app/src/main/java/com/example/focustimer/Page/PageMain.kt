@@ -225,9 +225,11 @@ fun TimerBox(modifier: Modifier, subject: subject){
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            val timerOption = if(subject.selectedTimer != -1) TimerOptions.list.get(subject.selectedTimer) else TimerOptions.list.get(subject.recomendTimer)
             Text(text = subject.name,  fontSize = 25.sp, color = colorResource(R.color.myBlack))
-            Text(text = "work: ${subject.workTime/60}분", color = colorResource(R.color.myBlack))
-            Text(text = "rest: ${subject.restTime/60}분", color = colorResource(R.color.myBlack))
+            Text(text = timerOption.name, color = colorResource(R.color.myBlack))
+            Text(text = "work: ${timerOption.workTime/60}분", color = colorResource(R.color.myBlack))
+            Text(text = "rest: ${timerOption.restTime/60}분", color = colorResource(R.color.myBlack))
         }
     }
 }

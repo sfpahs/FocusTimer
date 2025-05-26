@@ -13,24 +13,18 @@ fun saveDefaultUserSettingFireBase(name : String, context: Context) {
             0,
             "암기",
             context.getColor(R.color.myCategory1).toLong(),
-            50 * 60,
-            10 * 60,
             recomendTimer = 0,
         ),
         subject(
             1,
             "연산",
             context.getColor(R.color.myCategory2).toLong(),
-            3 * 60,
-            1 * 60,
             recomendTimer = 2,
         ),
         subject(
             2,
             "이해",
             context.getColor(R.color.myCategory3).toLong(),
-            55 * 60,
-            5 * 60,
             recomendTimer = 3,
         )
     )

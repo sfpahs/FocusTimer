@@ -22,6 +22,7 @@ import com.example.focustimer.utils.MyIntents
 import com.example.shared.model.DateTimeWrapper
 import com.example.shared.Myfirebase.saveHistoryData
 import com.example.shared.model.HistoryData
+import com.example.shared.model.TimerOptions
 import com.example.shared.model.TimerViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
@@ -296,8 +297,11 @@ class TimerService : Service() {
         val switchPendingIntent = MyIntents.getSwitchWatchIntent(this);
         // 종료 버튼 인텐트 - 앱을 실행하지 않고 서비스만 종료하는 특별 인텐트
         val stopPendingIntent = MyIntents.getStopWatchIntent(this)
-
-        val maxTime = if (activeTimer == 1) setting.workTime else setting.restTime
+        val timer = if(setting.selectedTimer != -1){
+            TimerOptions.list.get(setting.selectedTimer)
+        }
+        else TimerOptions.list.get(setting.recomendTimer)
+        val maxTime = if (activeTimer == 1) timer.workTime else timer.restTime
         val timerText = "${time / 60}:${(time % 60).toString().padStart(2, '0')} / ${maxTime / 60}:${(maxTime % 60).toString().padStart(2, '0')}"
         val activityType = if (activeTimer == 1) "작업 중" else "휴식 중"
 
