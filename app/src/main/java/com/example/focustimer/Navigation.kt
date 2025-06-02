@@ -35,7 +35,8 @@ import com.example.focustimer.Page.historyPage
 import com.example.focustimer.survery.SurveyScreen
 import com.example.focustimer.Page.ExplanationPager
 import com.example.focustimer.Page.ScheduleContainerPage
-import com.example.focustimer.test.EditBoxScreen
+import com.example.focustimer.Page.ChangeTimerOption
+import com.example.focustimer.Page.EditBoxScreen
 import com.google.firebase.auth.FirebaseAuth
 
 
@@ -130,6 +131,7 @@ fun MyBottomNavi(navController: NavHostController = rememberNavController()) {
         ) { innerPadding ->
 
             NavHost(navController, startDestination = startPage, Modifier.padding(innerPadding)) {
+                composable("changeOption") { ChangeTimerOption() }
                 composable("main") { MainPage() }
                 composable("date") { ScheduleContainerPage() }
                 composable("survey") { SurveyScreen() }

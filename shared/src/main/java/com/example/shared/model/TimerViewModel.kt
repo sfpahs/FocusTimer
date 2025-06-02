@@ -20,7 +20,7 @@ class TimerViewModel : ViewModel() {
     val activeTimer : StateFlow<Int> = _activeTimer
 
     private val _timerOptioin  = MutableStateFlow(TimerOption())
-    val timerOption : MutableStateFlow<TimerOption> = _timerOptioin
+    val timerOption : StateFlow<TimerOption> = _timerOptioin
 
     private val _time = MutableStateFlow(0)
     val time : StateFlow<Int> = _time
@@ -49,6 +49,7 @@ class TimerViewModel : ViewModel() {
     }
 
     fun editSubject(newSetting : subject){
+
         viewModelScope.launch {
             updateTimerSetting(
                 id = newSetting.id,
@@ -56,11 +57,18 @@ class TimerViewModel : ViewModel() {
                 )
         }
     }
-
+    fun setOption(option: TimerOption){
+        _timerOptioin.value = option;
+    }
     fun setTimer(newData : Timer){
         _time.value = newData.time
         _activeTimer.value = newData.activeTimer
         _currentSubject.value = newData.subject
+        val subject = newData.subject
+        if(newData.subject.selectedTimer != -1)
+            _timerOptioin.value = TimerOptions.list[subject.selectedTimer]
+        else
+            _timerOptioin.value = TimerOptions.list[subject.recomendTimer]
     }
     fun setActiveTimer(value : Int){
         _activeTimer.value = value

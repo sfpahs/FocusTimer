@@ -47,6 +47,7 @@ class TimerService : Service() {
     var setting = viewModel.currentSubject.value
     var time = viewModel.time.value
     var activeTimer = viewModel.activeTimer.value
+    var option = viewModel.timerOption.value
     private lateinit var myService: ServiceWatchCommunication
     private var bound = false
 
@@ -64,7 +65,7 @@ class TimerService : Service() {
     }
     // 콜백 인터페이스 정의
     interface TimerCallback {
-        fun onTimerTick(workTimer: Int, restTimer: Int, activeStopwatch: Int)
+        fun onTimerTick(timerWorkTimer: Int, restTimer: Int, activeStopwatch: Int)
     }
 
     inner class TimerBinder : Binder() {
@@ -286,21 +287,18 @@ class TimerService : Service() {
 
 
     private fun createNotification(): Notification {
-
         setting = viewModel.currentSubject.value
         time = viewModel.time.value
         activeTimer = viewModel.activeTimer.value
-
+        option = viewModel.timerOption.value
         // 알림 바디 클릭 시 앱 실행 인텐트
         val pendingIntent = MyIntents.getNotificationIntent(this)
         // 스위치 버튼 인텐트
         val switchPendingIntent = MyIntents.getSwitchWatchIntent(this);
         // 종료 버튼 인텐트 - 앱을 실행하지 않고 서비스만 종료하는 특별 인텐트
         val stopPendingIntent = MyIntents.getStopWatchIntent(this)
-        val timer = if(setting.selectedTimer != -1){
-            TimerOptions.list.get(setting.selectedTimer)
-        }
-        else TimerOptions.list.get(setting.recomendTimer)
+
+        val timer = option
         val maxTime = if (activeTimer == 1) timer.workTime else timer.restTime
         val timerText = "${time / 60}:${(time % 60).toString().padStart(2, '0')} / ${maxTime / 60}:${(maxTime % 60).toString().padStart(2, '0')}"
         val activityType = if (activeTimer == 1) "작업 중" else "휴식 중"

@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import com.example.focustimer.LocalNavController
 import com.example.focustimer.Activity.MainActivity.Companion.timerStoppedReceiver
 import com.example.focustimer.TimerService
+import com.example.shared.model.TimerOption
 import com.example.shared.model.TimerOptions
 import com.example.shared.model.TimerViewModel
 
@@ -68,6 +69,7 @@ fun DualStopwatchApp(
     val time by viewModel.time.collectAsState()
     val subject by viewModel.currentSubject.collectAsState()
     val mul by viewModel.mul.collectAsState()
+    val timerOption by viewModel.timerOption.collectAsState()
 
     DisposableEffect(Unit) {
         // 1. ServiceConnection 객체 정의
@@ -175,13 +177,17 @@ fun DualStopwatchApp(
         StopwatchUI(
             modifier = Modifier.size(300.dp),
             isChecked = isChecked,
-            subject = subject,
             activeTimer = activeTimer,
-            time = time
+            time = time,
+            timerOption = timerOption
         )
 
         Spacer(modifier = Modifier.height(32.dp))
-
+        Button(onClick = {
+            navController.navigate("changeOption")
+        }) {
+            Text("타이머 바꾸기")
+        }
         Row(horizontalArrangement = Arrangement.SpaceEvenly) {
             Button(onClick = {
                 if (!stopwatchRunning && isStopped) {
@@ -251,11 +257,10 @@ fun StopwatchUI(
     isChecked: Boolean,
     activeTimer : Int,
     time : Int,
-    subject: com.example.shared.model.subject
+    timerOption: TimerOption
 ) {
-    val categoryIndex = if(subject.selectedTimer != -1)subject.selectedTimer else subject.recomendTimer
-    val timer = TimerOptions.list.get(categoryIndex)
-    val maxTime =if( activeTimer == 1 ) timer.workTime else timer.restTime
+
+    val maxTime =if( activeTimer == 1 ) timerOption.workTime else timerOption.restTime
 
 
     Box(contentAlignment = Alignment.Center, modifier = modifier) {

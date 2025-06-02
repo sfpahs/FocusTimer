@@ -48,7 +48,6 @@ import com.example.focustimer.R
 import com.example.shared.Myfirebase.loadUserName
 import com.example.shared.Myfirebase.logOut
 import com.example.shared.model.Timer
-import com.example.shared.model.TimerOption
 import com.example.shared.model.TimerOptions
 import com.example.shared.model.subject
 import com.example.shared.model.TimerViewModel
@@ -183,23 +182,23 @@ fun TimerBox(modifier: Modifier, subject: subject){
             )
             .clickable {
                 //유저가 저장한 것이 있는지
-                if(subject.selectedTimer != -1){
-
+                if (subject.selectedTimer != -1) {
                     timerViewModel.setTimer(
                         newData = Timer(subject = subject, activeTimer = 1, time = 0),
-
                     )
+                    timerViewModel.setOption(TimerOptions.list.get(subject.selectedTimer))
                 }
                 //없을 시에 추천 타이머로 실행
-                else{
-
+                else {
                     timerViewModel.setTimer(
                         newData = Timer(subject = subject, activeTimer = 1, time = 0)
                     )
+                    timerViewModel.setOption(TimerOptions.list.get(subject.recomendTimer))
                 }
 
 
-                navController.navigate("timer") },
+                navController.navigate("timer")
+            },
     ){
         Icon(
             imageVector = Icons.Default.Settings,
@@ -225,7 +224,12 @@ fun TimerBox(modifier: Modifier, subject: subject){
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            val timerOption = if(subject.selectedTimer != -1) TimerOptions.list.get(subject.selectedTimer) else TimerOptions.list.get(subject.recomendTimer)
+
+            val timerOption =
+                if(subject.selectedTimer != -1)
+                    TimerOptions.list.get(subject.selectedTimer)
+                else TimerOptions.list.get(subject.recomendTimer)
+
             Text(text = subject.name,  fontSize = 25.sp, color = colorResource(R.color.myBlack))
             Text(text = timerOption.name, color = colorResource(R.color.myBlack))
             Text(text = "work: ${timerOption.workTime/60}분", color = colorResource(R.color.myBlack))
