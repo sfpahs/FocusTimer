@@ -10,6 +10,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.preference.PreferenceManager
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
@@ -61,6 +62,9 @@ class MainActivity : ComponentActivity() {
     @SuppressLint("NewApi")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        prefs.edit().putBoolean("stop_accessibility_service", false).apply()
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         checkOverlayPermission()
@@ -86,6 +90,8 @@ class MainActivity : ComponentActivity() {
         try {
             unregisterReceiver(navigationReceiver)
             unregisterReceiver(timerStopReceiver)
+            val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+            prefs.edit().putBoolean("stop_accessibility_service", true).apply()
         }catch (e : IllegalArgumentException){
             Log.e("MainActivity", "Receiver not registered", e)
         }
