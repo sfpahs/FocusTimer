@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 // SurveyViewModel.kt
-class SurveyViewModel : ViewModel() {
+class SurveyCronoViewModel : ViewModel() {
     private val _answers = MutableStateFlow<MutableMap<Int, Int>>(mutableMapOf())
     val answers: StateFlow<Map<Int, Int>> = _answers.asStateFlow()
 
@@ -26,8 +26,8 @@ class SurveyViewModel : ViewModel() {
     }
 
     fun completeSurvey() {
-        if (_answers.value.size == SurveyData.questions.size) {
-            _surveyResult.value = SurveyCalculator.calculateResult(_answers.value)
+        if (_answers.value.size == SurveyCronotypeData.questions.size) {
+            _surveyResult.value = SurveyCronotypeCalculator.calculateResult(_answers.value)
             _surveyCompleted.value = true
         }
     }
@@ -38,11 +38,11 @@ class SurveyViewModel : ViewModel() {
     }
     companion object {
         // 싱글톤 인스턴스
-        private var instance: SurveyViewModel? = null
+        private var instance: SurveyCronoViewModel? = null
         // 인스턴스 가져오기
-        fun getInstance(): SurveyViewModel {
+        fun getInstance(): SurveyCronoViewModel {
             if (instance == null) {
-                instance = SurveyViewModel()
+                instance = SurveyCronoViewModel()
             }
             return instance!!
         }

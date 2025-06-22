@@ -33,20 +33,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.focustimer.LocalNavController
 import com.example.shared.Myfirebase.saveSurveyData
-import com.example.shared.model.CronoTimeViewModel
 import kotlinx.coroutines.launch
 
 // SurveyScreen.kt
 @Preview()
 @Composable
-fun SurveyScreen() {
-
-    val viewModel : SurveyViewModel by lazy { SurveyViewModel.getInstance() }
+fun SurveyCronotypeScreen() {
+    val viewModel : SurveyCronoViewModel by lazy { SurveyCronoViewModel.getInstance() }
     val answers by viewModel.answers.collectAsState()
     val surveyCompleted by viewModel.surveyCompleted.collectAsState()
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
-    val questions = SurveyData.questions
+    val questions = SurveyCronotypeData.questions
     Text(
         text = "1=전혀 그렇지 않다, 5=매우 그렇다",
         style = MaterialTheme.typography.labelMedium,
@@ -98,7 +96,7 @@ fun SurveyScreen() {
 @Composable
 fun ResultScreen(
 ) {
-    val viewModel : SurveyViewModel by lazy { SurveyViewModel.getInstance() }
+    val viewModel : SurveyCronoViewModel by lazy { SurveyCronoViewModel.getInstance() }
     val result by viewModel.surveyResult.collectAsState()
     val navHostController = LocalNavController.current
 
@@ -149,7 +147,7 @@ fun ResultScreen(
 
             ResultCard(
                 title = "생체 리듬 민감도",
-                content = SurveyCalculator.getSensitivityLevel(surveyResult.sensitivityScore),
+                content = SurveyCronotypeCalculator.getSensitivityLevel(surveyResult.sensitivityScore),
             )
 
             Spacer(modifier = Modifier.height(16.dp))

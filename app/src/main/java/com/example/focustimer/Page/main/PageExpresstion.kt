@@ -1,4 +1,4 @@
-package com.example.focustimer.Page
+package com.example.focustimer.Page.main
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column

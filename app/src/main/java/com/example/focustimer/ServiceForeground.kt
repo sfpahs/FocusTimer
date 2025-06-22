@@ -22,7 +22,6 @@ import com.example.focustimer.utils.MyIntents
 import com.example.shared.model.DateTimeWrapper
 import com.example.shared.Myfirebase.saveHistoryData
 import com.example.shared.model.HistoryData
-import com.example.shared.model.TimerOptions
 import com.example.shared.model.TimerViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
@@ -44,7 +43,7 @@ class TimerService : Service() {
     }
 
     private val viewModel : TimerViewModel by lazy { TimerViewModel.getInstance() }
-    var setting = viewModel.currentSubject.value
+    var setting = viewModel.currentMySubject.value
     var time = viewModel.time.value
     var activeTimer = viewModel.activeTimer.value
     var option = viewModel.timerOption.value
@@ -229,7 +228,8 @@ class TimerService : Service() {
             totalMinute = totalWorkTime + totalRestTime,
             workingMinute = totalWorkTime,
             restMinute = totalRestTime,
-            averageWorkingMinute = totalWorkTime / workCount
+            averageWorkingMinute = totalWorkTime / workCount,
+            description = viewModel.description
         )
 
         val user = FirebaseAuth.getInstance().currentUser
@@ -287,7 +287,7 @@ class TimerService : Service() {
 
 
     private fun createNotification(): Notification {
-        setting = viewModel.currentSubject.value
+        setting = viewModel.currentMySubject.value
         time = viewModel.time.value
         activeTimer = viewModel.activeTimer.value
         option = viewModel.timerOption.value

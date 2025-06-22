@@ -12,15 +12,11 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.view.WindowCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.focustimer.MyBottomNavi
-import com.example.focustimer.Page.TimerStoppedReceiver
+import com.example.focustimer.Page.timer.TimerStoppedReceiver
 import com.example.focustimer.TimerService
 import com.example.focustimer.ui.theme.FocusTimerTheme
 

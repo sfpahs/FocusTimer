@@ -45,7 +45,7 @@ fun WatchTimerControl(navController: NavHostController = rememberNavController()
     var isConnected by remember { mutableStateOf(false) }
 
     val viewModel by lazy { TimerViewModel.getInstance() }
-    val timerSetting by viewModel.currentSubject.collectAsState()
+    val timerSetting by viewModel.currentMySubject.collectAsState()
     val activeTimer by viewModel.activeTimer.collectAsState()
     val time by viewModel.time.collectAsState()
 

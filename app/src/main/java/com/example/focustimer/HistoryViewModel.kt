@@ -3,7 +3,7 @@ package com.example.focustimer
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.focustimer.Page.Event
+import com.example.focustimer.Page.Date.Event
 import com.example.shared.Myfirebase.loadDayHistoryData
 import com.example.shared.model.TimerViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -60,7 +60,8 @@ class HistoryViewModel : ViewModel() {
                         startHour = data.startTime.toLocalDateTime().hour,
                         startMinute = data.startTime.toLocalDateTime().minute,
                         durationMinutes = data.totalMinute,
-                        category = data.category
+                        category = data.category,
+                        description = data.description
                     )
                 )
             }

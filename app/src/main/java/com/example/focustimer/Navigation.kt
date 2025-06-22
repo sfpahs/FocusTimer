@@ -1,11 +1,10 @@
 package com.example.focustimer
-import com.example.focustimer.Page.MainPage
+import com.example.focustimer.Page.main.MainPage
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -19,7 +18,9 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -28,15 +29,17 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.focustimer.Page.DualStopwatchApp
+import com.example.focustimer.Page.timer.DualStopwatchApp
 import com.example.focustimer.Page.LoginScreen
 import com.example.focustimer.Page.signupPage
-import com.example.focustimer.Page.historyPage
-import com.example.focustimer.survery.SurveyScreen
-import com.example.focustimer.Page.ExplanationPager
-import com.example.focustimer.Page.ScheduleContainerPage
-import com.example.focustimer.Page.ChangeTimerOption
-import com.example.focustimer.Page.EditBoxScreen
+import com.example.focustimer.Page.TodoPage
+import com.example.focustimer.survery.SurveyCronotypeScreen
+import com.example.focustimer.Page.main.ExplanationPager
+import com.example.focustimer.Page.Date.ScheduleContainerPage
+import com.example.focustimer.Page.timer.ChangeTimerOption
+import com.example.focustimer.Page.main.EditBoxScreen
+import com.example.focustimer.test.SurveyMstiScreen
+import com.example.focustimer.utils.AppRoute
 import com.google.firebase.auth.FirebaseAuth
 
 
@@ -56,7 +59,7 @@ fun MyBottomNavi(navController: NavHostController = rememberNavController()) {
 
         Scaffold(
             bottomBar ={
-                if(currentRoute in listOf("main","history", "date"))
+                if(currentRoute in listOf(AppRoute.MAIN.route,AppRoute.DATE.route, AppRoute.TODO.route))
                 {
                     NavigationBar (
                         containerColor = colorResource(R.color.myGray)
@@ -65,11 +68,11 @@ fun MyBottomNavi(navController: NavHostController = rememberNavController()) {
                         val currentDestination = navBackStackEntry?.destination
                         //아이콘 , 텍스트 루트,
                         NavigationBarItem(
-                            icon = { Icon(imageVector =  Icons.Filled.DateRange, contentDescription = "Date") },
-                            label = { Text("Date") },
-                            selected = currentDestination?.hierarchy?.any { it.route == "date" } == true,
+                            icon = { Icon(imageVector =  Icons.Filled.DateRange, contentDescription = "History") },
+                            label = { Text("기록") },
+                            selected = currentDestination?.hierarchy?.any { it.route == AppRoute.DATE.route } == true,
                             onClick = {
-                                navController.navigate("date") {
+                                navController.navigate(AppRoute.DATE.route) {
                                     popUpTo(navController.graph.findStartDestination().id) {
                                         saveState = true
 
@@ -84,11 +87,11 @@ fun MyBottomNavi(navController: NavHostController = rememberNavController()) {
                             )
                         )
                         NavigationBarItem(
-                            icon = { Icon(imageVector =  Icons.Filled.Home, contentDescription = "Home") },
-                            label = { Text("Main") },
-                            selected = currentDestination?.hierarchy?.any { it.route == "main" } == true,
+                            icon = { Icon(imageVector =  ImageVector.vectorResource(R.drawable.ic_clock), contentDescription = "Home") },
+                            label = { Text("타이머") },
+                            selected = currentDestination?.hierarchy?.any { it.route == AppRoute.MAIN.route } == true,
                             onClick = {
-                                navController.navigate("main") {
+                                navController.navigate(AppRoute.MAIN.route) {
                                     popUpTo(navController.graph.findStartDestination().id) {
                                         saveState = true
 
@@ -104,11 +107,11 @@ fun MyBottomNavi(navController: NavHostController = rememberNavController()) {
                         )
 
                         NavigationBarItem(
-                            icon = { Icon(Icons.Filled.List, contentDescription = "History") },
-                            label = { Text("History") },
-                            selected = currentDestination?.hierarchy?.any { it.route == "history" } == true,
+                            icon = { Icon(Icons.Filled.List, contentDescription = "TODO") },
+                            label = { Text("Todo") },
+                            selected = currentDestination?.hierarchy?.any { it.route == AppRoute.TODO.route } == true,
                             onClick = {
-                                navController.navigate("history") {
+                                navController.navigate("todo") {
                                     popUpTo(navController.graph.findStartDestination().id) {
                                         saveState = true
                                     }
@@ -131,17 +134,17 @@ fun MyBottomNavi(navController: NavHostController = rememberNavController()) {
         ) { innerPadding ->
 
             NavHost(navController, startDestination = startPage, Modifier.padding(innerPadding)) {
-                composable("changeOption") { ChangeTimerOption() }
-                composable("main") { MainPage() }
-                composable("date") { ScheduleContainerPage() }
-                composable("survey") { SurveyScreen() }
-                composable("history") { historyPage() }
-                composable("signup") { signupPage() }
-                composable("signin") { LoginScreen() }
-                composable("timer") { DualStopwatchApp() }
-                composable("explanation"){ ExplanationPager() }
-                composable("edit"){ EditBoxScreen() }
-
+                composable(AppRoute.CHANGE_OPTION.route) { ChangeTimerOption() }
+                composable(AppRoute.MAIN.route) { MainPage() }
+                composable(AppRoute.DATE.route) { ScheduleContainerPage() }
+                composable(AppRoute.SURVEY.route) { SurveyCronotypeScreen() }
+                composable(AppRoute.TODO.route) { TodoPage() }
+                composable(AppRoute.SIGNUP.route) { signupPage() }
+                composable(AppRoute.SIGNIN.route) { LoginScreen() }
+                composable(AppRoute.TIMER.route) { DualStopwatchApp() }
+                composable(AppRoute.EXPLANATION.route) { ExplanationPager() }
+                composable(AppRoute.EDIT.route) { EditBoxScreen() }
+                composable(AppRoute.MSTI.route) { SurveyMstiScreen() }
             }
         }
     }

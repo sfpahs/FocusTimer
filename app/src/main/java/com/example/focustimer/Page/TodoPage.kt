@@ -3,7 +3,9 @@ package com.example.focustimer.Page
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -42,6 +44,8 @@ import co.yml.charts.ui.barchart.models.GroupBar
 import co.yml.charts.ui.barchart.models.GroupBarChartData
 import co.yml.charts.ui.barchart.models.SelectionHighlightData
 import com.example.focustimer.LocalNavController
+import com.example.focustimer.test.PreviewHistoryWithTodoList
+import com.example.focustimer.utils.AppRoute
 import com.example.shared.Myfirebase.loadWeekHistoryData
 import com.example.shared.model.TimerViewModel
 import java.time.LocalDateTime
@@ -50,12 +54,11 @@ import java.util.TimeZone
 
 @Preview
 @Composable
-fun historyPage(){
+fun TodoPage(){
     val viewModel by lazy { TimerViewModel.getInstance() }
     var isLoading by remember { mutableStateOf(true) }
     val timerSettings by viewModel.subjects.collectAsState()
     val navController = LocalNavController.current
-    var hasTakenSurvey by remember { mutableStateOf(false) }
     var graphSetting by remember { mutableStateOf<Pair<LegendsConfig, GroupBarChartData>?>(null) }
 
     if(timerSettings.isEmpty()){
@@ -71,16 +74,33 @@ fun historyPage(){
         weekHistoryGraph(timerSettings){ x->
             graphSetting = Pair(x.first, x.second)
             isLoading = false
-
         }
 
 
         if(graphSetting.isNotNull()&&!isLoading){
-            historyDrawGraph(
-                hasTakenSurvey = hasTakenSurvey,
-                navController = navController,
-                graphSetting = graphSetting
-            )
+            Column(modifier = Modifier
+                .fillMaxSize()
+                .background(color = Color.White),
+                verticalArrangement = Arrangement.Center
+            ) {
+
+
+                textButtons(
+                    navController = navController
+                )
+                //todo todo넣기
+//                historyDrawGraph(
+//                    navController = navController,
+//                    graphSetting = graphSetting
+//                )
+                Box(modifier = Modifier
+                    .weight(1f)){
+
+                    PreviewHistoryWithTodoList()
+                }
+            }
+
+
         }
         else LoadingScreen(isLoading = isLoading)
 
@@ -90,29 +110,60 @@ fun historyPage(){
 }
 
 @Composable
-fun historyDrawGraph(hasTakenSurvey : Boolean, navController : NavHostController, graphSetting : Pair<LegendsConfig,GroupBarChartData>?){
+fun textButtons(navController: NavHostController){
+    Button(
+        onClick = { navController.navigate(AppRoute.SURVEY.route) },
+        modifier = Modifier
+            .fillMaxWidth(),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFF90CAF9)
+        )
+    ) {
+        Text(
+            text = "생체시계 테스트 하러가기",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(8.dp)
+        )
+    }
+
+    Spacer(Modifier.height(16.dp))
+
+    Button(
+        onClick = { navController.navigate(AppRoute.MSTI.route) },
+        modifier = Modifier
+            .fillMaxWidth(),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFF90CAF9)
+        )
+    ) {
+        Text(
+            text = "공부성향 테스트 하러가기",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(8.dp)
+        )
+    }
+}
+
+
+
+
+
+
+
+
+
+
+@Composable
+fun historyDrawGraph(
+                     navController : NavHostController,
+                     graphSetting : Pair<LegendsConfig,GroupBarChartData>?){
     Column(modifier = Modifier
         .fillMaxSize()
         .background(color = Color.White),
         verticalArrangement = Arrangement.Center
     ) {
-        if (!hasTakenSurvey) {
-            Button(
-                onClick = { navController.navigate("survey") },
-                modifier = Modifier
-                    .fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF90CAF9)
-                )
-            ) {
-                Text(
-                    text = "성향 테스트 하러가기",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(8.dp)
-                )
-            }
-        }
 
 
         StackedBarChart(  // 스택형 바 차트 컴포넌트
@@ -123,11 +174,12 @@ fun historyDrawGraph(hasTakenSurvey : Boolean, navController : NavHostController
         Legends(  // 차트 하단에 범례 표시
             legendsConfig = graphSetting!!.first
         )
+
     }
 }
 
 //그래프관련
-fun weekHistoryGraph(subjects : List<com.example.shared.model.subject>, callback: (Pair<LegendsConfig, GroupBarChartData>) -> Unit) {
+fun weekHistoryGraph(MySubjects : List<com.example.shared.model.MySubject>, callback: (Pair<LegendsConfig, GroupBarChartData>) -> Unit) {
     val barSize = 5      // 각 그룹에 포함될 바의 개수 (3개 카테고리)
     val listSize = 7    // 차트에 표시할 그룹(X축 데이터 포인트)의 개수
     val yStepSize = 8
@@ -142,7 +194,7 @@ fun weekHistoryGraph(subjects : List<com.example.shared.model.subject>, callback
 
         val listtest = mutableListOf<LegendLabel>()
 
-        subjects.map { element ->
+        MySubjects.map { element ->
             colorPaletteList.add(Color(element.backgroundColor))
             listtest.add(LegendLabel(color = Color(element.backgroundColor),name = element.name))
         }

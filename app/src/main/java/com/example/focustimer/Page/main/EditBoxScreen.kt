@@ -1,4 +1,4 @@
-package com.example.focustimer.Page
+package com.example.focustimer.Page.main
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -20,7 +20,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.focustimer.LocalNavController
-import com.example.shared.model.subject
+import com.example.shared.model.MySubject
 import com.example.shared.model.TimerViewModel
 import com.example.shared.model.TimerOptions
 import kotlinx.coroutines.delay
@@ -36,7 +36,11 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 @Composable
 fun EditBoxScreen() {
     val viewModel: TimerViewModel by lazy { TimerViewModel.getInstance() }
-    val currentSetting = viewModel.subjects.value.find { it.id == viewModel.currentSubject.value.id } ?: return
+
+
+    val currentSetting = viewModel.subjects.value.find { it.id == viewModel.currentMySubject.value.id } ?: MySubject()
+
+
 
     var newName by remember { mutableStateOf(currentSetting.name) }
     var newColor by remember { mutableStateOf(currentSetting.backgroundColor) }
@@ -107,14 +111,89 @@ fun EditBoxScreen() {
                 verticalArrangement = Arrangement.Center
             ) {
 
-                // 미리보기 제목
-                Text(
-                    text = "미리보기",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
+
+                Row(
                     modifier = Modifier
-                        .padding(bottom = 12.dp)
-                )
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    // 미리보기 제목
+                    Text(
+                        modifier = Modifier
+                            .padding(bottom = 12.dp)
+                            .weight(1f),
+                        text = "미리보기",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+
+                    )
+                    //버튼들
+                    Row {
+                        if (currentSetting.id != -1){
+                            Button(
+                                colors = ButtonDefaults.buttonColors(Color.Red),
+                                onClick = {
+                                    viewModel.delectSubject(id = currentSetting.id)
+                                    navHostController.popBackStack()
+                                }) {
+                                Text(text = "삭제")
+                            }
+                        }
+                        Button(
+                            onClick = { navHostController.popBackStack() },
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                        ) {
+                            Text("취소", fontWeight = FontWeight.Medium)
+                        }
+
+                        Button(
+                            onClick = {
+                                //필수항목 체크
+                                if(newName.isBlank()){
+                                    nameError = true
+                                    shouldRequestFocus = true
+                                    return@Button
+                                }
+                                //edit처리 - 여기서 추가하는거 넣을 예정
+                                scope.launch {
+                                    if(selectedTimerId == recomendTimerId)
+                                        selectedTimerId = -1
+                                    //새로운 세팅 추가
+                                    if(currentSetting.id == -1){
+                                        viewModel.addSubject(
+                                            newSetting = MySubject(
+                                                name = newName,
+                                                backgroundColor = newColor,
+                                                selectedTimer = selectedTimerId,
+                                                recomendTimer = recomendTimerId
+                                            )
+                                        )
+                                    }
+                                    //기존 세팅 변경
+                                    else{
+                                        viewModel.editSubject(
+                                            newSetting = MySubject(
+                                                name = newName,
+                                                id = currentSetting.id,
+                                                backgroundColor = newColor,
+                                                selectedTimer = selectedTimerId,
+                                                recomendTimer = recomendTimerId
+                                            )
+                                        )
+                                    }
+                                    navHostController.popBackStack()
+                                }
+
+                            },
+                        ) {
+                            Text("저장", fontWeight = FontWeight.Medium)
+                        }
+                    }
+
+                }
+
+
+
 
                 // 미리보기 박스
                 Box(
@@ -163,53 +242,13 @@ fun EditBoxScreen() {
                 }
 
 
-                // 버튼 영역
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Button(
-                        onClick = { navHostController.navigate("main") },
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
-                    ) {
-                        Text("취소", fontWeight = FontWeight.Medium)
-                    }
+                // 상위 영역
 
-                    Button(
-                        onClick = {
-                            if(newName.isBlank()){
-                                nameError = true
-                                shouldRequestFocus = true
-                                return@Button
-                            }
 
-                            scope.launch {
-                                if(selectedTimerId == recomendTimerId)
-                                    selectedTimerId = -1
-                                viewModel.editSubject(
-                                    newSetting = subject(
-                                        name = newName,
-                                        id = currentSetting.id,
-                                        backgroundColor = newColor,
-                                        selectedTimer = selectedTimerId,
-                                        recomendTimer = recomendTimerId
-                                    )
-                                )
-                                navHostController.navigate("main")
-                            }
 
-                                  },
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text("저장", fontWeight = FontWeight.Medium)
-                    }
-                }
             }
         },
-        sheetPeekHeight = 250.dp, // 기본적으로 보이는 높이
+        sheetPeekHeight = 200.dp, // 기본적으로 보이는 높이
         modifier = Modifier.fillMaxSize(),
     ) { paddingValues ->
         // 메인 콘텐츠 영역

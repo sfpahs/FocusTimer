@@ -1,16 +1,14 @@
-package com.example.focustimer.Page
+package com.example.focustimer.Page.timer
 
 import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
-import android.content.ServiceConnection
 import android.os.Build
-import android.os.IBinder
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -23,12 +21,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,15 +39,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieAnimatable
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.focustimer.LocalNavController
-import com.example.focustimer.Activity.MainActivity.Companion.timerStoppedReceiver
+import com.example.focustimer.R
 import com.example.focustimer.TimerService
-import com.example.shared.model.TimerOption
-import com.example.shared.model.TimerOptions
 import com.example.shared.model.TimerViewModel
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -56,72 +61,16 @@ fun DualStopwatchApp(
 
     val navController = LocalNavController.current
     val context = LocalContext.current
-    var workTimer by remember { mutableStateOf(0) }
-    var restTimer by remember { mutableStateOf(0) }
-    var stopwatchRunning by remember { mutableStateOf(false) }
-    var isStopped by remember { mutableStateOf(true) }
+
     var isChecked by remember { mutableStateOf(true) }
-    var serviceConnection by remember { mutableStateOf<ServiceConnection?>(null) }
-    var timerService by remember { mutableStateOf<TimerService?>(null) }
+    var showRecordDialog by remember { mutableStateOf(false) }
 
     val viewModel : TimerViewModel by lazy { TimerViewModel.getInstance() }
-    val activeTimer by viewModel.activeTimer.collectAsState()
-    val time by viewModel.time.collectAsState()
-    val subject by viewModel.currentSubject.collectAsState()
+    val subject by viewModel.currentMySubject.collectAsState()
     val mul by viewModel.mul.collectAsState()
-    val timerOption by viewModel.timerOption.collectAsState()
+    val stopwatchRunning by viewModel.stopwatchRunning.collectAsState()
+    val isStopped by viewModel.isStopped.collectAsState()
 
-    DisposableEffect(Unit) {
-        // 1. ServiceConnection 객체 정의
-        val connection = object : ServiceConnection {
-            override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
-                val binder = service as TimerService.TimerBinder
-                timerService = binder.getService()
-
-                // 콜백 설정
-                timerService?.setCallback(object : TimerService.TimerCallback {
-                    override fun onTimerTick(timerWorkTime: Int, timerRestTime: Int, timerActiveStopwatch: Int) {
-                        workTimer = timerWorkTime
-                        restTimer = timerRestTime
-                        viewModel.setActiveTimer(timerActiveStopwatch)
-                    }
-                })
-            }
-
-            override fun onServiceDisconnected(name: ComponentName?) {
-                timerService = null
-            }
-        }
-
-        // 2. BroadcastReceiver 객체Ti 별도 정의
-        timerStoppedReceiver = TimerStoppedReceiver(){
-            navController.navigate("main")
-        }
-
-        // 3. 리시버 등록
-        Log.d("TAG", "onReceive: 리시버등록")
-        context.registerReceiver(
-            timerStoppedReceiver,
-            IntentFilter(TimerService.ACTION_STOP),
-            Context.RECEIVER_EXPORTED
-        )
-
-        // 4. 서비스 연결 저장
-        serviceConnection = connection
-
-        // 5. 서비스 바인딩 시도
-        val intent = Intent(context, TimerService::class.java)
-        context.bindService(intent, connection, Context.BIND_AUTO_CREATE)
-
-        // 6. 컴포저블이 제거될 때 정리 작업
-        onDispose {
-            try {
-                context.unbindService(connection)
-            } catch (e: Exception) {
-                // 예외 처리
-            }
-        }
-    }
 
     fun startStopwatch() {
 
@@ -136,10 +85,9 @@ fun DualStopwatchApp(
                 context.startService(intent)
             }
 
-            context.bindService(intent, serviceConnection!!, Context.BIND_AUTO_CREATE)
+            //context.bindService(intent, serviceConnection!!, Context.BIND_AUTO_CREATE)
 
-            stopwatchRunning = true
-            isStopped = false
+            viewModel.startTimer()
         }
     }
 
@@ -150,7 +98,6 @@ fun DualStopwatchApp(
             }
             context.startService(intent)
 
-            viewModel.setActiveTimer(if (activeTimer ==1) 2 else 1)
         }
     }
 
@@ -160,12 +107,19 @@ fun DualStopwatchApp(
         }
         context.startService(intent)
 
-        isStopped = true
-        stopwatchRunning = false
+        viewModel.stopTimer()
 
         navController.navigate("main")
     }
-
+    BackHandler {
+        // 종료 버튼과 동일한 동작 실행
+        if (!stopwatchRunning && isStopped) {
+            navController.navigate("main")
+        } else {
+            // 종료 다이얼로그를 띄우는 로직
+            showRecordDialog = true
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -176,10 +130,7 @@ fun DualStopwatchApp(
 
         StopwatchUI(
             modifier = Modifier.size(300.dp),
-            isChecked = isChecked,
-            activeTimer = activeTimer,
-            time = time,
-            timerOption = timerOption
+            viewModel = viewModel
         )
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -192,6 +143,7 @@ fun DualStopwatchApp(
             Button(onClick = {
                 if (!stopwatchRunning && isStopped) {
                     startStopwatch()
+
                 } else if (stopwatchRunning) {
                     switchStopwatch()
                 }
@@ -201,9 +153,24 @@ fun DualStopwatchApp(
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            Button(onClick = { stopStopwatch() }) {
+            Button(onClick = {
+                if (!stopwatchRunning && isStopped) navController.navigate("main")
+                else showRecordDialog = true
+            }) {
                 Text("종료")
             }
+        }
+        if (showRecordDialog) {
+            RecordDialog(
+                onDismiss = { showRecordDialog = false },
+                onSave = { recordText ->
+                    // 1. 기록 저장 (예: ViewModel에 저장)
+                    viewModel.description = (recordText)
+                    showRecordDialog = false
+                    // 2. 기존 저장 로직 이어서 실행
+                    stopStopwatch() // 기존 종료/저장 함수 호출
+                }
+            )
         }
     }
 
@@ -219,7 +186,7 @@ fun DualStopwatchApp(
                 Switch(
                     modifier = Modifier,
                     checked = isChecked,
-                    onCheckedChange = { isChecked = it },
+                    onCheckedChange = { viewModel.setTextVisible(it)},
                     colors = SwitchDefaults.colors(
                         checkedTrackColor = Color.Red
                     )
@@ -254,17 +221,28 @@ fun DualStopwatchApp(
 @Composable
 fun StopwatchUI(
     modifier: Modifier = Modifier,
-    isChecked: Boolean,
-    activeTimer : Int,
-    time : Int,
-    timerOption: TimerOption
+    viewModel: TimerViewModel
 ) {
-
+    val activeTimer by viewModel.activeTimer.collectAsState()
+    val time by viewModel.time.collectAsState()
+    val timerOption by viewModel.timerOption.collectAsState()
     val maxTime =if( activeTimer == 1 ) timerOption.workTime else timerOption.restTime
-
+    val isChecked by viewModel.isTextVisible.collectAsState()
 
     Box(contentAlignment = Alignment.Center, modifier = modifier) {
-        var step = 0f
+
+        var sweepAngle = if (maxTime > 0) {
+            Math.min(360f,(360f/3 * (time*3 / maxTime)))
+        } else {
+            0f
+        }
+
+        val step = sweepAngle/120
+        val animatedStep by animateFloatAsState(targetValue = step)
+
+// fireSize도 animatedStep을 사용
+        val fireSize = 1f + 0.8f * animatedStep
+
         Canvas(modifier = modifier) {
             val strokeWidth = 50f
             val radius = size.minDimension / 2 - strokeWidth / 5
@@ -277,13 +255,7 @@ fun StopwatchUI(
             )
 
             // 진행 원 그리기 (경과 시간)
-            var sweepAngle = if (maxTime > 0) {
-                Math.min(360f,(360f/3 * (time*3 / maxTime)))
-            } else {
-                0f
-            }
 
-            step = sweepAngle/120
 
             drawArc(
                 color = if (activeTimer == 1){
@@ -299,6 +271,20 @@ fun StopwatchUI(
                 useCenter = false,
                 style = Stroke(width = strokeWidth)
             )
+        }
+
+        Column (
+            modifier = Modifier
+                .size(180.dp) // 최대 크기 기준으로 고정
+                .graphicsLayer(
+                    scaleX = fireSize,
+                    scaleY = fireSize
+                ),
+            horizontalAlignment = Alignment.CenterHorizontally
+        )
+        {
+            Spacer(modifier = Modifier.height(24.dp))
+            SmoothLottieAnimation(resId = R.raw.timer_fire)
         }
 
         if (isChecked) {
@@ -320,7 +306,67 @@ fun StopwatchUI(
     }
 }
 
+@Composable
+fun SmoothLottieAnimation(
+    modifier: Modifier = Modifier,
+    resId: Int,
 
+) {
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(resId))
+    val animatable = rememberLottieAnimatable()
+
+    // 애니메이션이 composition이 준비되면 자동으로 반복 재생
+    LaunchedEffect(composition) {
+        if (composition != null) {
+            animatable.animate(
+                composition = composition,
+                iterations = LottieConstants.IterateForever
+            )
+        }
+    }
+
+    LottieAnimation(
+        composition = composition,
+        progress = { animatable.progress },
+        modifier = modifier.size(100.dp)
+    )
+}
+
+@Composable
+fun RecordDialog(
+    onDismiss: () -> Unit,
+    onSave: (String) -> Unit
+) {
+    var inputText by remember { mutableStateOf("") }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("기록 남기기") },
+        text = {
+            Column {
+                Text("오늘의 기록을 입력하세요.")
+                TextField(
+                    value = inputText,
+                    onValueChange = { inputText = it },
+                    placeholder = { Text("기록 입력") }
+                )
+            }
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    onSave(inputText) // 저장 및 기존 로직 실행
+                }
+            ) {
+                Text("저장")
+            }
+        },
+        dismissButton = {
+            OutlinedButton(onClick = onDismiss) {
+                Text("취소")
+            }
+        }
+    )
+}
 
 
 class TimerStoppedReceiver(callback : () -> Unit = {}) : BroadcastReceiver() {

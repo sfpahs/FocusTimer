@@ -30,6 +30,7 @@ class CronoTimeViewModel : ViewModel() {
                         _surveyData.value = cronoTime
                         Log.d("FireBase", "loadSurveyData: 로드완료")
                     } else {
+                        _surveyData.value = CronoTimeSchedule.intermediateType
                         Log.e("FireBase", "loadSurveyData: 데이터 없음")
                     }
                 } catch (e: Exception) {

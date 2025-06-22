@@ -1,4 +1,4 @@
-package com.example.focustimer.Page
+package com.example.focustimer.Page.timer
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -24,7 +24,7 @@ import com.example.shared.model.TimerOption
 @Composable
 fun ChangeTimerOption() {
     val viewModel: TimerViewModel by lazy { TimerViewModel.getInstance() }
-    val currentSetting = viewModel.subjects.value.find { it.id == viewModel.currentSubject.value.id } ?: return
+    val currentSetting = viewModel.subjects.value.find { it.id == viewModel.currentMySubject.value.id } ?: return
 
     val option = viewModel.timerOption.collectAsState()
     var currentTimerId by remember {

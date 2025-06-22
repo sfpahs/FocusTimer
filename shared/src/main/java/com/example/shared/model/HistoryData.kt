@@ -10,4 +10,5 @@ data class HistoryData @SuppressLint("NewApi") constructor(
     var workingMinute : Int = -1,
     var restMinute : Int = -1,
     var averageWorkingMinute : Int = -1,
+    var description : String = "",
 )

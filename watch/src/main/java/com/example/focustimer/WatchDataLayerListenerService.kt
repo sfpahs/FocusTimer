@@ -34,7 +34,7 @@ class WatchDataLayerListenerService : WearableListenerService() {
                         // 복호화된 WatchData 객체 사용
                         viewModel.setTimer(
                             newData = Timer(
-                                subject = it.subject,
+                                MySubject = it.MySubject,
                                 activeTimer = it.activeTimer,
                                 time = it.time
                                 )

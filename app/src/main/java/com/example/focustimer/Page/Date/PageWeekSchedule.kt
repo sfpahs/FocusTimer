@@ -1,5 +1,6 @@
-package com.example.focustimer.Page
+package com.example.focustimer.Page.Date
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -39,7 +40,8 @@ data class Event(
     val startHour: Int,        // 0~23
     val startMinute: Int,      // 0~59
     val durationMinutes: Int,   // 분 단위
-    val category : Int
+    val category : Int,
+    val description : String = ""
 )
 
 
@@ -67,7 +69,7 @@ fun WeeklySchedule(startDate : LocalDate) {
     val cronoType = cronotype.value
     val events by historyViewModel.events.collectAsState()
 
-
+    Log.i("TAG", "WeeklySchedule: $cronoType")
     val productiveColor = Color(0xffc4c6fe) // 반투명 파란색
     val creativeColor = Color(0xffffedcc)  // 반투명 주황색
     val workoutColor = Color(0xffccffcc)   // 반투명 초록색
@@ -211,14 +213,17 @@ fun WeeklySchedule(startDate : LocalDate) {
                                         .height(eventHeight.dp)
                                         .fillMaxWidth()
                                         .padding(horizontal = 2.dp)
-                                        .background(Color(viewModel.subjects.value.get(event.category).backgroundColor), shape = MaterialTheme.shapes.small),
+                                        .background(
+                                            Color(viewModel.subjects.value.get(event.category).backgroundColor),
+                                            shape = MaterialTheme.shapes.small
+                                        ),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     if((eventHeight>10))
                                     Text(
                                         text = event.title,
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = Color.White
+                                        color = Color.Black
                                     )
                                 }
                             }

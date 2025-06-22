@@ -93,9 +93,9 @@ class ServiceWatchCommunication : Service(), MessageClient.OnMessageReceivedList
             try {
                 val time = viewModel.time.value
                 val active = viewModel.activeTimer.value
-                val setting = viewModel.currentSubject.value
+                val setting = viewModel.currentMySubject.value
 
-                val watchData = Timer(subject = setting, activeTimer = active, time = time)
+                val watchData = Timer(MySubject = setting, activeTimer = active, time = time)
                 val gson = Gson()
                 val jsonWatchData = gson.toJson(watchData)
                 val request = PutDataMapRequest.create("/timer_status").apply {
