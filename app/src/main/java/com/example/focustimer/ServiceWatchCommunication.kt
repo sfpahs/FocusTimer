@@ -23,8 +23,6 @@ class ServiceWatchCommunication : Service(), MessageClient.OnMessageReceivedList
     private val messageClient by lazy { Wearable.getMessageClient(this) }
     private val dataClient by lazy { Wearable.getDataClient(this) }
 
-    private val navController: NavHostController? = null
-
     private val viewModel by lazy { TimerViewModel.getInstance() }
 
     inner class LocalBinder : Binder() {

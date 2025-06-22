@@ -5,10 +5,14 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -24,6 +28,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var navController: NavHostController
     companion object{
         lateinit var timerStoppedReceiver : TimerStoppedReceiver
+        private const val OVERLAY_PERMISSION_REQUEST_CODE = 1001
     }
     private val timerStopReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -58,7 +63,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-
+        checkOverlayPermission()
         registerReceiver(timerStopReceiver, IntentFilter(TimerService.ACTION_STOP),
             RECEIVER_NOT_EXPORTED
         )
@@ -83,6 +88,29 @@ class MainActivity : ComponentActivity() {
             unregisterReceiver(timerStopReceiver)
         }catch (e : IllegalArgumentException){
             Log.e("MainActivity", "Receiver not registered", e)
+        }
+    }
+
+    private fun checkOverlayPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!Settings.canDrawOverlays(this)) {
+                val intent = Intent(
+                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:$packageName")
+                )
+                startActivityForResult(intent, OVERLAY_PERMISSION_REQUEST_CODE)
+            }
+        }
+    }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == OVERLAY_PERMISSION_REQUEST_CODE) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (!Settings.canDrawOverlays(this)) {
+                    // 권한이 거부된 경우 처리
+                    Toast.makeText(this, "오버레이 권한이 필요합니다", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 }

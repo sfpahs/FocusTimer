@@ -1,20 +1,8 @@
 package com.example.focustimer
 
 import android.util.Log
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,6 +14,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.Text
+import com.example.shared.model.TimerOptions
 import com.example.shared.model.TimerViewModel
 import com.google.android.gms.wearable.MessageClient
 import com.google.android.gms.wearable.Wearable
@@ -37,6 +26,7 @@ import com.google.android.gms.tasks.Task
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.resumeWithException
+import com.airbnb.lottie.compose.*
 
 @Preview(widthDp = 200, heightDp = 200)
 @Composable
@@ -53,10 +43,14 @@ fun WatchTimerControl(navController: NavHostController = rememberNavController()
     val messageClient = Wearable.getMessageClient(context)
     val nodeClient = Wearable.getNodeClient(context)
 
-    val currentTime : Int = time
-    val currentMaxTime =
-        if(activeTimer.equals(1)) timerSetting.workTime
-        else timerSetting.restTime
+    val currentTime: Int = time
+    val timerOption =
+        if (timerSetting.selectedTimer != -1) TimerOptions.list.get(timerSetting.selectedTimer)
+        else if (timerSetting.recomendTimer != -1)
+            TimerOptions.list.get(timerSetting.recomendTimer)
+        else TimerOptions.list.get(1)
+
+    val maxTime = if (activeTimer == 1) timerOption.workTime else timerOption.restTime
 
     // 컴포저블이 처음 생성될 때 연결 상태 확인
     LaunchedEffect(Unit) {
@@ -65,63 +59,124 @@ fun WatchTimerControl(navController: NavHostController = rememberNavController()
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(8.dp),
-        verticalArrangement = Arrangement.SpaceEvenly,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        if(timerSetting.name.isNotEmpty()){
-            Text(
-                text = "${timerSetting.name}:${currentMaxTime/60}",
-                fontSize = 16.sp,
-                color = if (isConnected) Color.White else Color.Gray
-            )
-            Text(
-                text = "$currentTime",
-                fontSize = 16.sp,
-                color = if (isConnected) Color.White else Color.Gray
-            )
-        }
-        else{
-            Text(
-                text = if (isConnected) "연결됨" else "연결 중...",
-                fontSize = 16.sp,
-                color = if (isConnected) Color.White else Color.Gray
-            )
-        }
+    if (timerSetting.name.isNotEmpty()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp),
+            verticalArrangement = Arrangement.SpaceEvenly,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Box{
+                TimerFireLottieAnimation()
+                Column{
 
-        Row {
-            Button(
-                onClick = {
-                    if (isConnected) {
-                        sendMessageToPhone(messageClient, "/timer_action", "switch")
-                    }
-                },
-                enabled = isConnected
-            ) {
-                Text("전환")
+                    Text(
+                        text = "${timerSetting.name}:${maxTime / 60}",
+                        fontSize = 16.sp,
+                        color = if (isConnected) Color.White else Color.Gray
+                    )
+                    Text(
+                        text = "$currentTime",
+                        fontSize = 16.sp,
+                        color = if (isConnected) Color.White else Color.Gray
+                    )
+                }
+
             }
 
-            Spacer(modifier = Modifier.fillMaxWidth(0.4f))
+            Row {
+                Button(
+                    onClick = {
+                        if (isConnected) {
+                            sendMessageToPhone(messageClient, "/timer_action", "switch")
+                        }
+                    },
+                    enabled = isConnected
+                ) {
+                    Text("전환")
+                }
 
-            Button(
-                onClick = {
-                    if (isConnected) {
-                        sendMessageToPhone(messageClient, "/timer_action", "stop")
-                    }
-                },
-                enabled = isConnected
-            ) {
-                Text("종료")
+                Spacer(modifier = Modifier.fillMaxWidth(0.4f))
+
+                Button(
+                    onClick = {
+                        if (isConnected) {
+                            sendMessageToPhone(messageClient, "/timer_action", "stop")
+                        }
+                    },
+                    enabled = isConnected
+                ) {
+                    Text("종료")
+                }
+            }
+        }
+    } else {
+        // 상태 메시지 및 Lottie 애니메이션 적용
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            if (isConnected) {
+                Text(
+                    text = "✅ 스마트폰과 연결 완료!",
+                    fontSize = 16.sp,
+                    color = Color(0xFF4CAF50)
+                )
+            } else {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    // Lottie 로딩 애니메이션
+                    ConnectingLottieAnimation(modifier = Modifier.size(80.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "스마트폰을 찾는 중...",
+                        fontSize = 16.sp,
+                        color = Color(0xFFFFC107)
+                    )
+                }
             }
         }
     }
 }
 
+// 연결 중 애니메이션 (Lottie)
+@Composable
+fun ConnectingLottieAnimation(modifier: Modifier = Modifier) {
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(com.example.shared.R.raw.loding_fire))
+    val progress by animateLottieCompositionAsState(
+        composition = composition,
+        iterations = LottieConstants.IterateForever
+    )
+    LottieAnimation(
+        composition = composition,
+        progress = { progress },
+        modifier = modifier
+    )
+}
+
+@Composable
+fun TimerFireLottieAnimation(modifier: Modifier = Modifier) {
+    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(com.example.shared.R.raw.timer_fire))
+    val progress by animateLottieCompositionAsState(
+        composition = composition,
+        iterations = LottieConstants.IterateForever // 무한 반복
+    )
+    LottieAnimation(
+        composition = composition,
+        progress = { progress },
+        modifier = modifier
+    )
+}
+
 // 연결 상태를 확인하는 함수
-private fun checkConnectionStatus(nodeClient: com.google.android.gms.wearable.NodeClient, callback: (Boolean) -> Unit) {
+private fun checkConnectionStatus(
+    nodeClient: com.google.android.gms.wearable.NodeClient,
+    callback: (Boolean) -> Unit
+) {
     CoroutineScope(Dispatchers.IO).launch {
         try {
             val nodes = nodeClient.connectedNodes.await()

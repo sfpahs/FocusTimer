@@ -55,9 +55,11 @@ dependencies {
     implementation(libs.androidx.localbroadcastmanager)
     implementation(project(":shared"))
     implementation(libs.firebase.database)
+    implementation(libs.navigation.runtime.android)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation(libs.gson)
+    implementation (libs.lottie.compose)
 }
