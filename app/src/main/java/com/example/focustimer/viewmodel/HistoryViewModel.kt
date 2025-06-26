@@ -1,4 +1,4 @@
-package com.example.focustimer
+package com.example.focustimer.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

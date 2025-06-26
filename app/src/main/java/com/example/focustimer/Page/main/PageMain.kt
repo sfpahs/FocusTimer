@@ -28,11 +28,13 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.focustimer.LocalNavController
 import com.example.focustimer.Page.Date.ScheduleViewType
 import com.example.focustimer.Page.LoadingScreen
 import com.example.focustimer.R
+import com.example.focustimer.test.TodoListViewModel
 import com.example.focustimer.utils.AppRoute
 import com.example.shared.Myfirebase.loadUserName
 import com.example.shared.Myfirebase.logOut
@@ -62,12 +64,11 @@ val sleepColor = Color(0xffe6cce6)      // 수면
 @Composable
 fun MainPage() {
     val viewModel : TimerViewModel by lazy { TimerViewModel.getInstance() }
+    val todoListViewModel : TodoListViewModel = viewModel()
     val cronoViewmodel : CronoTimeViewModel by lazy{ CronoTimeViewModel.getInstance()}
+
     var selectedViewType by remember { mutableStateOf(ScheduleViewType.WEEKLY) }
     val cronoType by cronoViewmodel.surveyData.collectAsState()
-
-    cronoViewmodel.loadSurveyData()
-
     val context = LocalContext.current
     val navHostController = LocalNavController.current
     val user = FirebaseAuth.getInstance().currentUser
@@ -79,46 +80,51 @@ fun MainPage() {
 
     // 현재 시간 및 배경색 상태
     var currentHour by remember { mutableStateOf(LocalTime.now().hour) }
-    //var currentHour by remember { mutableStateOf(6) }
     val chronoTimeName = getChronoTimeName(currentHour)
     val backgroundColor by animateColorAsState(
         getChronoColor(currentHour),
         label = "background color"
     )
-
-    // 1분마다 시간 갱신
+// 1분마다 시간 갱신
     LaunchedEffect(Unit) {
+        todoListViewModel.deleteIfNotToday()
+        cronoViewmodel.loadSurveyData()
         while (true) {
             delay(60 * 1000)
             currentHour = LocalTime.now().hour
         }
     }
 
+
     user?.let {
         scope.launch {
             viewModel.loadSubjects()
             loadUserName{ name -> userName = name ?: ""}
-            delay(1000)
+            delay(2000)
             isLoading = false
         }
     }
 
     // 배경색 적용
-    Box(
+    Box (
         modifier = Modifier
             .fillMaxSize()
             .background(color = backgroundColor)
     ) {
-        SelectTimer(
-            MySubjects = timerSettings,
-            modifier = Modifier.fillMaxSize()
-        )
-        MainAppBar(
-            context = context,
-            userName = userName,
-            chronoTimeName = chronoTimeName,
-            navHostController = navHostController
-        )
+        Column {
+
+            MainAppBar(
+                context = context,
+                userName = userName,
+                chronoTimeName = chronoTimeName,
+                navHostController = navHostController
+            )
+
+            SelectTimer(
+                MySubjects = timerSettings,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
         LoadingScreen(isLoading = isLoading)
     }
 }
@@ -179,10 +185,12 @@ fun SelectTimer(
 
 @Composable
 fun MainAppBar(context : Context, userName : String,chronoTimeName : String,  navHostController: NavHostController) {
+Column {
+
     Row (
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(2.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
@@ -203,7 +211,10 @@ fun MainAppBar(context : Context, userName : String,chronoTimeName : String,  na
                 tint = colorResource(R.color.myBlack)
             )
         }
-        Log.i("main", "MainPage: ${userName}")
+
+
+    }
+    Row {
         Button(
             onClick = {
                 logOut(context = context)
@@ -211,6 +222,8 @@ fun MainAppBar(context : Context, userName : String,chronoTimeName : String,  na
             }
         ) { Text(text = "Log out") }
     }
+}
+
 }
 
 @Composable
@@ -240,8 +253,7 @@ fun TimerBox(modifier: Modifier, MySubject: MySubject) {
                 Timer(MySubject = MySubject, activeTimer = 1, time = 0)
                 )
                 navController.navigate("timer")
-            }
-    ) {
+            }    ) {
         Icon(
             imageVector = Icons.Default.Settings,
             contentDescription = "Edit Timer",
@@ -280,7 +292,7 @@ fun AddBox(modifier: Modifier) {
     val timerViewModel : TimerViewModel by lazy { TimerViewModel.getInstance() }
     Box(
         modifier = modifier
-            .fillMaxHeight(1f)
+            .height(175.dp)
             .padding(10.dp)
             .shadow(
                 elevation = 8.dp,

@@ -1,8 +1,9 @@
-package com.example.focustimer.test
+package com.example.focustimer.survery
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,14 +25,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
-import com.example.focustimer.survery.ScoreSelector
+import com.example.focustimer.LocalNavController
+import com.example.focustimer.utils.AppRoute
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-// QuestionCategory.kt
-enum class QuestionCategory {
+// MSTIQuestionCategory.kt
+enum class MSTIQuestionCategory {
     SUBJECTIVE,    // S
     OBJECTIVE,     // O
     ACTION,        // A
@@ -41,44 +43,44 @@ enum class QuestionCategory {
     PRINCIPLE,     // P
     FLEXIBLE       // E
 }
-// Question.kt
-data class Question(
+// MSTIQuestion.kt
+data class MSTIQuestion(
     val id: Int,
     val text: String,
-    val category: QuestionCategory
+    val category: MSTIQuestionCategory
 )
 object SurveyMstiData {
     val questions = listOf(
-        Question(0, "새로운 공부 방법을 시도하기보다 익숙한 방식을 고수하는 편이다.", QuestionCategory.PRINCIPLE),
-        Question(1, "공부 계획을 세우기 전에 목표부터 명확히 정한다.", QuestionCategory.TACTIC),
-        Question(2, "친구나 선생님의 조언을 듣고 공부 방법을 바꾸는 일이 많다.", QuestionCategory.DEPENDENT),
-        Question(3, "공부할 때 스스로 동기를 부여하는 편이다.", QuestionCategory.CONFIDENT),
-        Question(4, "공부할 때 원리와 개념을 이해하려고 노력한다.", QuestionCategory.PRINCIPLE),
-        Question(5, "상황에 따라 공부 방법을 융통성 있게 바꾼다.", QuestionCategory.FLEXIBLE),
-        Question(6, "주관적으로 생각하고 판단하는 것을 선호한다.", QuestionCategory.SUBJECTIVE),
-        Question(7, "객관적인 자료와 근거를 중요하게 생각한다.", QuestionCategory.OBJECTIVE),
-        Question(8, "계획을 세우기보다는 바로 실천에 옮기는 편이다.", QuestionCategory.ACTION),
-        Question(9, "계획을 세우고 그에 따라 공부하는 것이 효율적이라고 생각한다.", QuestionCategory.TACTIC),
-        Question(10, "주변 사람들의 의견을 자주 참고한다.", QuestionCategory.DEPENDENT),
-        Question(11, "자신의 결정을 신뢰하고 밀고 나가는 편이다.", QuestionCategory.CONFIDENT),
-        Question(12, "공부할 때 원칙을 중시한다.", QuestionCategory.PRINCIPLE),
-        Question(13, "상황에 따라 목표를 유연하게 조정한다.", QuestionCategory.FLEXIBLE),
-        Question(14, "자신만의 기준으로 공부 방법을 선택한다.", QuestionCategory.SUBJECTIVE),
-        Question(15, "사실과 데이터를 바탕으로 공부한다.", QuestionCategory.OBJECTIVE),
-        Question(16, "계획 없이 바로 시작하는 경우가 많다.", QuestionCategory.ACTION),
-        Question(17, "목표를 세우고 단계별로 실천한다.", QuestionCategory.TACTIC),
-        Question(18, "다른 사람의 피드백을 중요하게 여긴다.", QuestionCategory.DEPENDENT),
-        Question(19, "스스로 문제를 해결하려고 한다.", QuestionCategory.CONFIDENT),
-        Question(20, "공부할 때 항상 일정한 방식을 유지한다.", QuestionCategory.PRINCIPLE),
-        Question(21, "새로운 방법을 시도하는 데 거부감이 없다.", QuestionCategory.FLEXIBLE),
-        Question(22, "자신의 생각을 믿고 행동한다.", QuestionCategory.SUBJECTIVE),
-        Question(23, "객관적인 평가를 중시한다.", QuestionCategory.OBJECTIVE),
-        Question(24, "계획보다는 행동이 먼저다.", QuestionCategory.ACTION),
-        Question(25, "계획적으로 시간을 관리한다.", QuestionCategory.TACTIC),
-        Question(26, "주변의 조언을 잘 받아들인다.", QuestionCategory.DEPENDENT),
-        Question(27, "자신의 능력을 믿고 도전한다.", QuestionCategory.CONFIDENT),
-        Question(28, "규칙과 원칙을 지키는 것이 중요하다.", QuestionCategory.PRINCIPLE),
-        Question(29, "상황에 따라 유연하게 대처한다.", QuestionCategory.FLEXIBLE)
+        MSTIQuestion(0, "새로운 공부 방법을 시도하기보다 익숙한 방식을 고수하는 편이다.", MSTIQuestionCategory.PRINCIPLE),
+        MSTIQuestion(1, "공부 계획을 세우기 전에 목표부터 명확히 정한다.", MSTIQuestionCategory.TACTIC),
+        MSTIQuestion(2, "친구나 선생님의 조언을 듣고 공부 방법을 바꾸는 일이 많다.", MSTIQuestionCategory.DEPENDENT),
+        MSTIQuestion(3, "공부할 때 스스로 동기를 부여하는 편이다.", MSTIQuestionCategory.CONFIDENT),
+        MSTIQuestion(4, "공부할 때 원리와 개념을 이해하려고 노력한다.", MSTIQuestionCategory.PRINCIPLE),
+        MSTIQuestion(5, "상황에 따라 공부 방법을 융통성 있게 바꾼다.", MSTIQuestionCategory.FLEXIBLE),
+        MSTIQuestion(6, "주관적으로 생각하고 판단하는 것을 선호한다.", MSTIQuestionCategory.SUBJECTIVE),
+        MSTIQuestion(7, "객관적인 자료와 근거를 중요하게 생각한다.", MSTIQuestionCategory.OBJECTIVE),
+        MSTIQuestion(8, "계획을 세우기보다는 바로 실천에 옮기는 편이다.", MSTIQuestionCategory.ACTION),
+        MSTIQuestion(9, "계획을 세우고 그에 따라 공부하는 것이 효율적이라고 생각한다.", MSTIQuestionCategory.TACTIC),
+        MSTIQuestion(10, "주변 사람들의 의견을 자주 참고한다.", MSTIQuestionCategory.DEPENDENT),
+        MSTIQuestion(11, "자신의 결정을 신뢰하고 밀고 나가는 편이다.", MSTIQuestionCategory.CONFIDENT),
+        MSTIQuestion(12, "공부할 때 원칙을 중시한다.", MSTIQuestionCategory.PRINCIPLE),
+        MSTIQuestion(13, "상황에 따라 목표를 유연하게 조정한다.", MSTIQuestionCategory.FLEXIBLE),
+        MSTIQuestion(14, "자신만의 기준으로 공부 방법을 선택한다.", MSTIQuestionCategory.SUBJECTIVE),
+        MSTIQuestion(15, "사실과 데이터를 바탕으로 공부한다.", MSTIQuestionCategory.OBJECTIVE),
+        MSTIQuestion(16, "계획 없이 바로 시작하는 경우가 많다.", MSTIQuestionCategory.ACTION),
+        MSTIQuestion(17, "목표를 세우고 단계별로 실천한다.", MSTIQuestionCategory.TACTIC),
+        MSTIQuestion(18, "다른 사람의 피드백을 중요하게 여긴다.", MSTIQuestionCategory.DEPENDENT),
+        MSTIQuestion(19, "스스로 문제를 해결하려고 한다.", MSTIQuestionCategory.CONFIDENT),
+        MSTIQuestion(20, "공부할 때 항상 일정한 방식을 유지한다.", MSTIQuestionCategory.PRINCIPLE),
+        MSTIQuestion(21, "새로운 방법을 시도하는 데 거부감이 없다.", MSTIQuestionCategory.FLEXIBLE),
+        MSTIQuestion(22, "자신의 생각을 믿고 행동한다.", MSTIQuestionCategory.SUBJECTIVE),
+        MSTIQuestion(23, "객관적인 평가를 중시한다.", MSTIQuestionCategory.OBJECTIVE),
+        MSTIQuestion(24, "계획보다는 행동이 먼저다.", MSTIQuestionCategory.ACTION),
+        MSTIQuestion(25, "계획적으로 시간을 관리한다.", MSTIQuestionCategory.TACTIC),
+        MSTIQuestion(26, "주변의 조언을 잘 받아들인다.", MSTIQuestionCategory.DEPENDENT),
+        MSTIQuestion(27, "자신의 능력을 믿고 도전한다.", MSTIQuestionCategory.CONFIDENT),
+        MSTIQuestion(28, "규칙과 원칙을 지키는 것이 중요하다.", MSTIQuestionCategory.PRINCIPLE),
+        MSTIQuestion(29, "상황에 따라 유연하게 대처한다.", MSTIQuestionCategory.FLEXIBLE)
     )
 }
 data class MstiResult(
@@ -93,38 +95,38 @@ data class MstiResult(
     val type: String // 예: "STCP"
 )
 object SurveyMstiCalculator {
-    fun calculateResult(answers: Map<Int, Int>, questions: List<Question>): MstiResult {
+    fun calculateResult(answers: Map<Int, Int>, questions: List<MSTIQuestion>): MstiResult {
         // 카테고리별 점수 합산
         val scores = mutableMapOf(
-            QuestionCategory.SUBJECTIVE to 0,
-            QuestionCategory.OBJECTIVE to 0,
-            QuestionCategory.ACTION to 0,
-            QuestionCategory.TACTIC to 0,
-            QuestionCategory.DEPENDENT to 0,
-            QuestionCategory.CONFIDENT to 0,
-            QuestionCategory.PRINCIPLE to 0,
-            QuestionCategory.FLEXIBLE to 0
+            MSTIQuestionCategory.SUBJECTIVE to 0,
+            MSTIQuestionCategory.OBJECTIVE to 0,
+            MSTIQuestionCategory.ACTION to 0,
+            MSTIQuestionCategory.TACTIC to 0,
+            MSTIQuestionCategory.DEPENDENT to 0,
+            MSTIQuestionCategory.CONFIDENT to 0,
+            MSTIQuestionCategory.PRINCIPLE to 0,
+            MSTIQuestionCategory.FLEXIBLE to 0
         )
         answers.forEach { (index, score) ->
             val category = questions[index].category
             scores[category] = scores.getOrDefault(category, 0) + score
         }
         // 각 쌍별로 높은 점수의 알파벳 선택
-        val sOrO = if (scores[QuestionCategory.SUBJECTIVE]!! >= scores[QuestionCategory.OBJECTIVE]!!) "S" else "O"
-        val aOrT = if (scores[QuestionCategory.ACTION]!! >= scores[QuestionCategory.TACTIC]!!) "A" else "T"
-        val dOrC = if (scores[QuestionCategory.DEPENDENT]!! >= scores[QuestionCategory.CONFIDENT]!!) "D" else "C"
-        val pOrE = if (scores[QuestionCategory.PRINCIPLE]!! >= scores[QuestionCategory.FLEXIBLE]!!) "P" else "E"
+        val sOrO = if (scores[MSTIQuestionCategory.SUBJECTIVE]!! >= scores[MSTIQuestionCategory.OBJECTIVE]!!) "S" else "O"
+        val aOrT = if (scores[MSTIQuestionCategory.ACTION]!! >= scores[MSTIQuestionCategory.TACTIC]!!) "A" else "T"
+        val dOrC = if (scores[MSTIQuestionCategory.DEPENDENT]!! >= scores[MSTIQuestionCategory.CONFIDENT]!!) "D" else "C"
+        val pOrE = if (scores[MSTIQuestionCategory.PRINCIPLE]!! >= scores[MSTIQuestionCategory.FLEXIBLE]!!) "P" else "E"
         val type = sOrO + aOrT + dOrC + pOrE
 
         return MstiResult(
-            sScore = scores[QuestionCategory.SUBJECTIVE]!!,
-            oScore = scores[QuestionCategory.OBJECTIVE]!!,
-            aScore = scores[QuestionCategory.ACTION]!!,
-            tScore = scores[QuestionCategory.TACTIC]!!,
-            dScore = scores[QuestionCategory.DEPENDENT]!!,
-            cScore = scores[QuestionCategory.CONFIDENT]!!,
-            pScore = scores[QuestionCategory.PRINCIPLE]!!,
-            eScore = scores[QuestionCategory.FLEXIBLE]!!,
+            sScore = scores[MSTIQuestionCategory.SUBJECTIVE]!!,
+            oScore = scores[MSTIQuestionCategory.OBJECTIVE]!!,
+            aScore = scores[MSTIQuestionCategory.ACTION]!!,
+            tScore = scores[MSTIQuestionCategory.TACTIC]!!,
+            dScore = scores[MSTIQuestionCategory.DEPENDENT]!!,
+            cScore = scores[MSTIQuestionCategory.CONFIDENT]!!,
+            pScore = scores[MSTIQuestionCategory.PRINCIPLE]!!,
+            eScore = scores[MSTIQuestionCategory.FLEXIBLE]!!,
             type = type
         )
     }
@@ -145,7 +147,8 @@ class SurveyMstiViewModel : ViewModel() {
         updatedAnswers[questionIndex] = score
         _answers.value = updatedAnswers
         if (_answers.value.size == SurveyMstiData.questions.size) {
-            _surveyResult.value = SurveyMstiCalculator.calculateResult(_answers.value, SurveyMstiData.questions)
+            _surveyResult.value =
+                SurveyMstiCalculator.calculateResult(_answers.value, SurveyMstiData.questions)
             _surveyCompleted.value = true
         }
     }
@@ -189,7 +192,7 @@ fun SurveyMstiScreen() {
         itemsIndexed(questions){
                 index, question ->
 
-            QuestionItem(
+            MSTIQuestionItem(
                 question = question,
                 selectedScore = answers[index],
                 onScoreSelected = { score ->
@@ -215,7 +218,7 @@ fun SurveyMstiScreen() {
         ){
 
 
-            ResultScreen(onRestart = {viewModel.resetAnswers()})
+            MSTIResultScreen(onRestart = {viewModel.resetAnswers()})
         }
     }
 
@@ -225,10 +228,10 @@ fun SurveyMstiScreen() {
 
 @Preview
 @Composable
-fun QuestionItem(
-    question: Question = Question(
+fun MSTIQuestionItem(
+    question: MSTIQuestion = MSTIQuestion(
         text = "testQuestion",
-        category = QuestionCategory.TACTIC,
+        category = MSTIQuestionCategory.TACTIC,
         id = -1
     ),
     selectedScore: Int? = null,
@@ -252,12 +255,12 @@ fun QuestionItem(
     }
 }
 @Composable
-fun ResultScreen(
+fun MSTIResultScreen(
     viewModel: SurveyMstiViewModel = SurveyMstiViewModel.getInstance(),
     onRestart: () -> Unit = {}
 ) {
     val result by viewModel.surveyResult.collectAsState()
-
+    val navHostController = LocalNavController.current
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -298,8 +301,15 @@ fun ResultScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(Modifier.height(32.dp))
-                Button(onClick = onRestart) {
-                    Text("다시 검사하기")
+                Row {
+
+                    Button(onClick = onRestart) {
+                        Text("다시 검사하기")
+                    }
+                    Button(onClick = { navHostController.navigate(AppRoute.MAIN.route)} ) {
+                        Text("메인으로")
+                    }
+
                 }
             }
         } else {

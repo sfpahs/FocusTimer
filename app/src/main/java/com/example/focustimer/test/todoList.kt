@@ -1,5 +1,6 @@
 package com.example.focustimer.test
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,6 +13,7 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -20,20 +22,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-
-data class TodoItem(
-    val id: Int,
-    val text: String,
-    val isChecked: Boolean = false
-)
-
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
 fun TodoListSection(
-    todoItems: List<TodoItem>,
-    onAddTodo: (String) -> Unit,
-    onCheckTodo: (Int, Boolean) -> Unit
 ) {
+    val todoListViewModel : TodoListViewModel = viewModel()
+    LaunchedEffect(Unit) {
+        todoListViewModel.loadTodos()
+    }
+    val list = todoListViewModel.todoDocument.items
+
     var todoText by remember { mutableStateOf("") }
     Column {
         Row(
@@ -51,7 +50,7 @@ fun TodoListSection(
             Button(
                 onClick = {
                     if (todoText.isNotBlank()) {
-                        onAddTodo(todoText)
+                        todoListViewModel.saveTodo(todoItem = TodoItem(text = todoText))
                         todoText = ""
                     }
                 }
@@ -61,7 +60,7 @@ fun TodoListSection(
         }
         Spacer(modifier = Modifier.height(8.dp))
         // Todo 리스트 표시
-        todoItems.forEach { item ->
+        list.forEach { item ->
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
@@ -70,7 +69,8 @@ fun TodoListSection(
             ) {
                 Checkbox(
                     checked = item.isChecked,
-                    onCheckedChange = { checked -> onCheckTodo(item.id, checked) }
+                    onCheckedChange = { checked -> todoListViewModel.checkTodo(item.id)
+                        Log.i("todos", "TodoListSection: ${list}")}
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
@@ -85,20 +85,9 @@ fun TodoListSection(
 @Preview
 @Composable
 fun PreviewHistoryWithTodoList() {
-    // Todo 리스트 예시 데이터
-    val sampleTodos = listOf(
-        TodoItem(id = 0, text = "아침 회의 참석", isChecked = true),
-        TodoItem(id = 1, text = "업무 메일 확인", isChecked = false),
-        TodoItem(id = 2, text = "코드 리뷰", isChecked = false),
-        TodoItem(id = 3, text = "점심 식사", isChecked = false)
-    )
 
     // 실제 화면 호출
-    TodoListSection(
-        todoItems = sampleTodos,
-        onAddTodo = {},
-        onCheckTodo = { _, _ -> },
-    )
+    TodoListSection()
 }
 
 

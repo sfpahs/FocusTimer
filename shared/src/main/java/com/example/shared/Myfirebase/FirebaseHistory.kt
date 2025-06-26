@@ -70,6 +70,7 @@ fun updateTodayHistoryData(data: HistoryData){
     val historyRef = MyFireBase.getDayRef()
         .child("totalData")
         .child("${data.category}")
+
     var loadData : Pair<Int, Int> = Pair(0,0)
     loadTodayHistoryData(historyRef) { x ->
         loadData = x
@@ -97,7 +98,7 @@ fun loadTodayHistoryData(historyRef : DatabaseReference, callback : (Pair<Int, I
                 saveData = Pair(workingMinute.toInt(), restMinute.toInt())
                 callback(saveData)
             } else {
-                println("No data available")
+                //println("No data available")
                 callback(saveData)
             }
         } else {
@@ -170,7 +171,7 @@ fun loadDateHistoryData(historyRef: DatabaseReference, callback: (List<Pair<Int,
                 callback(saveData)
             } else {
                 saveData.add(Pair(1, 1))
-                println("No data available")
+                //println("No data available")
                 callback(saveData)
             }
         } else {
@@ -208,4 +209,3 @@ fun saveSurveyData(x : CronoTime){
         }
 
 }
-

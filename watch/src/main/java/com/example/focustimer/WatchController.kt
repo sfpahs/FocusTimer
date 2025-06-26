@@ -1,12 +1,16 @@
 package com.example.focustimer
 
 import android.util.Log
+import androidx.annotation.ColorRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -14,19 +18,19 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.Text
+import com.airbnb.lottie.compose.*
 import com.example.shared.model.TimerOptions
 import com.example.shared.model.TimerViewModel
+import com.google.android.gms.tasks.Task
 import com.google.android.gms.wearable.MessageClient
 import com.google.android.gms.wearable.Wearable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlin.coroutines.resume
-import com.google.android.gms.tasks.Task
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-import com.airbnb.lottie.compose.*
 
 @Preview(widthDp = 200, heightDp = 200)
 @Composable
@@ -38,7 +42,7 @@ fun WatchTimerControl(navController: NavHostController = rememberNavController()
     val timerSetting by viewModel.currentMySubject.collectAsState()
     val activeTimer by viewModel.activeTimer.collectAsState()
     val time by viewModel.time.collectAsState()
-
+    val statusText = if(activeTimer == 1)"작업중" else "쉬는중"
     // 데이터 레이어 클라이언트 초기화
     val messageClient = Wearable.getMessageClient(context)
     val nodeClient = Wearable.getNodeClient(context)
@@ -69,47 +73,54 @@ fun WatchTimerControl(navController: NavHostController = rememberNavController()
         ) {
             Box{
                 TimerFireLottieAnimation()
-                Column{
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally, // Column 내부 텍스트를 중앙 정렬
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxSize()
+                ){
 
                     Text(
-                        text = "${timerSetting.name}:${maxTime / 60}",
-                        fontSize = 16.sp,
-                        color = if (isConnected) Color.White else Color.Gray
+                        text = "${timerSetting.name}-${statusText}",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = if (isConnected) Color(timerSetting.backgroundColor) else Color.Gray
                     )
                     Text(
-                        text = "$currentTime",
-                        fontSize = 16.sp,
+                        text = formatTime(currentTime) + "/${maxTime / 60}",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
                         color = if (isConnected) Color.White else Color.Gray
                     )
+                    Row {
+                        Button(
+                            onClick = {
+                                if (isConnected) {
+                                    sendMessageToPhone(messageClient, "/timer_action", "switch")
+                                }
+                            },
+                            enabled = isConnected
+                        ) {
+                            Text("전환")
+                        }
+
+                        Spacer(modifier = Modifier.fillMaxWidth(0.4f))
+
+                        Button(
+                            onClick = {
+                                if (isConnected) {
+                                    sendMessageToPhone(messageClient, "/timer_action", "stop")
+                                }
+                            },
+                            enabled = isConnected
+                        ) {
+                            Text("종료")
+                        }
+                    }
                 }
 
             }
 
-            Row {
-                Button(
-                    onClick = {
-                        if (isConnected) {
-                            sendMessageToPhone(messageClient, "/timer_action", "switch")
-                        }
-                    },
-                    enabled = isConnected
-                ) {
-                    Text("전환")
-                }
 
-                Spacer(modifier = Modifier.fillMaxWidth(0.4f))
-
-                Button(
-                    onClick = {
-                        if (isConnected) {
-                            sendMessageToPhone(messageClient, "/timer_action", "stop")
-                        }
-                    },
-                    enabled = isConnected
-                ) {
-                    Text("종료")
-                }
-            }
         }
     } else {
         // 상태 메시지 및 Lottie 애니메이션 적용
@@ -120,11 +131,21 @@ fun WatchTimerControl(navController: NavHostController = rememberNavController()
             contentAlignment = Alignment.Center
         ) {
             if (isConnected) {
-                Text(
-                    text = "✅ 스마트폰과 연결 완료!",
-                    fontSize = 16.sp,
-                    color = Color(0xFF4CAF50)
-                )
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "✅ 스마트폰과 연결 완료!",
+                        fontSize = 16.sp,
+                        color = Color(0xFF4CAF50)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp)) // 간격 추가 (원하는 만큼 조절)
+                    Text(
+                        text = "타이머를 시작해보세요",
+                        fontSize = 14.sp,
+                        color = Color(0xFF4CAF50)
+                    )
+                }
             } else {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -213,5 +234,14 @@ suspend fun <T> Task<T>.await(): T = suspendCancellableCoroutine { continuation 
     }
     addOnFailureListener { exception ->
         continuation.resumeWithException(exception)
+    }
+}
+fun formatTime(seconds: Int): String {
+    val min = seconds / 60
+    val sec = seconds % 60
+    return if (min > 0) {
+        "%d:%02d".format(min, sec)
+    } else {
+        "0:%02d".format(sec)
     }
 }

@@ -12,7 +12,9 @@ class DateTimeWrapper {
     constructor(dateTime: LocalDateTime) {
         this.dateTime = dateTime.toString()
     }
-
+    constructor(dateTime: String){
+        this.dateTime = dateTime
+    }
     @SuppressLint("NewApi")
     fun toLocalDateTime(): LocalDateTime {
         return LocalDateTime.parse(dateTime)

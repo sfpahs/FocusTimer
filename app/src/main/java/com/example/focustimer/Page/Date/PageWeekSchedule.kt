@@ -28,7 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.zIndex
-import com.example.focustimer.HistoryViewModel
+import com.example.focustimer.viewmodel.HistoryViewModel
 import com.example.shared.model.CronoTimeViewModel
 import com.example.shared.model.TimerViewModel
 import com.example.shared.model.time

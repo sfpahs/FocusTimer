@@ -11,19 +11,19 @@ fun saveDefaultUserSettingFireBase(name : String, context: Context) {
     val MySubjects = listOf(
         MySubject(
             0,
-            "암기",
+            "국어",
             context.getColor(R.color.myCategory1).toLong(),
             recomendTimer = 0,
         ),
         MySubject(
             1,
-            "연산",
+            "영어",
             context.getColor(R.color.myCategory2).toLong(),
             recomendTimer = 2,
         ),
         MySubject(
             2,
-            "이해",
+            "수학",
             context.getColor(R.color.myCategory3).toLong(),
             recomendTimer = 3,
         )

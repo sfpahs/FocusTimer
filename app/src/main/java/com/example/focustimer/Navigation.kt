@@ -38,7 +38,7 @@ import com.example.focustimer.Page.main.ExplanationPager
 import com.example.focustimer.Page.Date.ScheduleContainerPage
 import com.example.focustimer.Page.timer.ChangeTimerOption
 import com.example.focustimer.Page.main.EditBoxScreen
-import com.example.focustimer.test.SurveyMstiScreen
+import com.example.focustimer.survery.SurveyMstiScreen
 import com.example.focustimer.utils.AppRoute
 import com.google.firebase.auth.FirebaseAuth
 
