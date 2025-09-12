@@ -19,9 +19,9 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.focustimer.LocalNavController
+import com.example.focustimer.navigation.LocalNavController
 import com.example.shared.model.MySubject
-import com.example.shared.model.TimerViewModel
+import com.example.shared.viewmodel.TimerViewModel
 import com.example.shared.model.TimerOptions
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

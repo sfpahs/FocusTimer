@@ -1,4 +1,4 @@
-package com.example.focustimer
+package com.example.focustimer.navigation
 import com.example.focustimer.Page.main.MainPage
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -38,6 +38,7 @@ import com.example.focustimer.Page.main.ExplanationPager
 import com.example.focustimer.Page.Date.ScheduleContainerPage
 import com.example.focustimer.Page.timer.ChangeTimerOption
 import com.example.focustimer.Page.main.EditBoxScreen
+import com.example.focustimer.R
 import com.example.focustimer.survery.SurveyMstiScreen
 import com.example.focustimer.utils.AppRoute
 import com.google.firebase.auth.FirebaseAuth

@@ -31,7 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.focustimer.LocalNavController
+import com.example.focustimer.navigation.LocalNavController
 import com.example.shared.Myfirebase.saveSurveyData
 import kotlinx.coroutines.launch
 

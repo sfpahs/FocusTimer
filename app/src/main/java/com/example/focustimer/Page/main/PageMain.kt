@@ -1,7 +1,6 @@
 package com.example.focustimer.Page.main
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -30,7 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.focustimer.LocalNavController
+import com.example.focustimer.navigation.LocalNavController
 import com.example.focustimer.Page.Date.ScheduleViewType
 import com.example.focustimer.Page.LoadingScreen
 import com.example.focustimer.R
@@ -38,11 +37,11 @@ import com.example.focustimer.test.TodoListViewModel
 import com.example.focustimer.utils.AppRoute
 import com.example.shared.Myfirebase.loadUserName
 import com.example.shared.Myfirebase.logOut
-import com.example.shared.model.CronoTimeViewModel
+import com.example.shared.viewmodel.CronoTimeViewModel
 import com.example.shared.model.Timer
 import com.example.shared.model.TimerOptions
 import com.example.shared.model.MySubject
-import com.example.shared.model.TimerViewModel
+import com.example.shared.viewmodel.TimerViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

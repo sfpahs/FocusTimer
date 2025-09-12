@@ -43,11 +43,11 @@ import co.yml.charts.ui.barchart.models.BarStyle
 import co.yml.charts.ui.barchart.models.GroupBar
 import co.yml.charts.ui.barchart.models.GroupBarChartData
 import co.yml.charts.ui.barchart.models.SelectionHighlightData
-import com.example.focustimer.LocalNavController
+import com.example.focustimer.navigation.LocalNavController
 import com.example.focustimer.test.PreviewHistoryWithTodoList
 import com.example.focustimer.utils.AppRoute
 import com.example.shared.Myfirebase.loadWeekHistoryData
-import com.example.shared.model.TimerViewModel
+import com.example.shared.viewmodel.TimerViewModel
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.TimeZone

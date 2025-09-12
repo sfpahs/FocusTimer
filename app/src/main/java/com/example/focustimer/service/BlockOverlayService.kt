@@ -1,8 +1,9 @@
-package com.example.focustimer
+package com.example.focustimer.service
 
 import android.app.Service
 import android.content.Intent
 import android.graphics.PixelFormat
+import android.os.Handler
 import android.os.IBinder
 import android.util.Log
 import android.view.WindowManager
@@ -71,7 +72,7 @@ class BlockOverlayService : Service(), LifecycleOwner, SavedStateRegistryOwner {
                     val intent = Intent(this@BlockOverlayService, MainActivity::class.java)
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     startActivity(intent)
-                android.os.Handler().postDelayed({
+                Handler().postDelayed({
                     stopSelf()
                 }, 1000) // 0.1초 딜레이
 

@@ -2,6 +2,7 @@ package com.example.focustimer
 
 import android.app.Application
 import android.content.Intent
+import com.example.focustimer.service.ServiceWatchCommunication
 
 class MyApplication : Application() {
 
@@ -10,11 +11,11 @@ class MyApplication : Application() {
         startWatchCommunication()
     }
     private fun startWatchCommunication(){
-        val intent = Intent(this,ServiceWatchCommunication::class.java)
+        val intent = Intent(this, ServiceWatchCommunication::class.java)
         startService(intent)
     }
     private fun stopWatchCommunication(){
-        val intent = Intent(this,ServiceWatchCommunication::class.java)
+        val intent = Intent(this, ServiceWatchCommunication::class.java)
         stopService(intent)
     }
     override fun onTerminate() {

@@ -10,8 +10,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.focustimer.LocalNavController
-import com.example.shared.model.TimerViewModel
+import com.example.focustimer.navigation.LocalNavController
+import com.example.shared.viewmodel.TimerViewModel
 import com.example.shared.model.TimerOptions
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.runtime.remember

@@ -3,7 +3,7 @@ import android.content.Intent
 import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.shared.model.Timer
-import com.example.shared.model.TimerViewModel
+import com.example.shared.viewmodel.TimerViewModel
 import com.google.android.gms.wearable.DataEvent
 import com.google.android.gms.wearable.DataEventBuffer
 import com.google.android.gms.wearable.DataMap

@@ -49,10 +49,10 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.rememberLottieAnimatable
 import com.airbnb.lottie.compose.rememberLottieComposition
-import com.example.focustimer.LocalNavController
+import com.example.focustimer.navigation.LocalNavController
 import com.example.focustimer.R
-import com.example.focustimer.TimerService
-import com.example.shared.model.TimerViewModel
+import com.example.focustimer.service.TimerService
+import com.example.shared.viewmodel.TimerViewModel
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable

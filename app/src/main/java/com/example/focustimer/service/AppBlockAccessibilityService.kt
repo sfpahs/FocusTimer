@@ -1,4 +1,4 @@
-package com.example.focustimer
+package com.example.focustimer.service
 
 import android.accessibilityservice.AccessibilityService
 import android.view.accessibility.AccessibilityEvent
@@ -8,7 +8,6 @@ import android.os.Build
 import android.preference.PreferenceManager
 import android.provider.Settings
 import android.util.Log
-import com.example.focustimer.BlockOverlayService
 
 
 class AppBlockAccessibilityService : AccessibilityService() {

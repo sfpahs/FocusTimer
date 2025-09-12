@@ -1,15 +1,12 @@
 package com.example.focustimer
 
 import android.util.Log
-import androidx.annotation.ColorRes
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -20,7 +17,7 @@ import androidx.wear.compose.material.Button
 import androidx.wear.compose.material.Text
 import com.airbnb.lottie.compose.*
 import com.example.shared.model.TimerOptions
-import com.example.shared.model.TimerViewModel
+import com.example.shared.viewmodel.TimerViewModel
 import com.google.android.gms.tasks.Task
 import com.google.android.gms.wearable.MessageClient
 import com.google.android.gms.wearable.Wearable

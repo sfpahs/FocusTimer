@@ -1,12 +1,12 @@
-package com.example.focustimer
+package com.example.focustimer.service
 
 import android.annotation.SuppressLint
+import android.app.AlarmManager
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.Service
 import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
 import android.net.Uri
@@ -18,11 +18,12 @@ import android.provider.Settings
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
+import com.example.focustimer.R
 import com.example.focustimer.utils.MyIntents
 import com.example.shared.model.DateTimeWrapper
 import com.example.shared.Myfirebase.saveHistoryData
 import com.example.shared.model.HistoryData
-import com.example.shared.model.TimerViewModel
+import com.example.shared.viewmodel.TimerViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -100,7 +101,7 @@ class TimerService : Service() {
 
         // 정확한 알람 권한 확인 (Android 12 이상)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val alarmManager = ContextCompat.getSystemService(this, android.app.AlarmManager::class.java)
+            val alarmManager = ContextCompat.getSystemService(this, AlarmManager::class.java)
             if (alarmManager?.canScheduleExactAlarms() == false) {
                 val alarmIntent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK
@@ -127,7 +128,7 @@ class TimerService : Service() {
         }
     }
     fun checkBatteryOptimization() {
-        val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
+        val pm = getSystemService(POWER_SERVICE) as PowerManager
         if (!pm.isIgnoringBatteryOptimizations(packageName)) {
             // 배터리 최적화가 활성화된 경우
             val intent = Intent().apply {
@@ -363,14 +364,14 @@ class TimerService : Service() {
     override fun onDestroy() {
         super.onDestroy()
 
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.cancel(NOTIFICATION_ID)
         timerJob?.cancel()
         unBindWatchCommunicationService()
        releaseWakeLock()
     }
     private fun acquireWakeLock() {
-        val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
+        val pm = getSystemService(POWER_SERVICE) as PowerManager
         wakeLock = pm.newWakeLock(
             PowerManager.PARTIAL_WAKE_LOCK,
             "FocusTimer::TimerWakeLock"
@@ -386,7 +387,7 @@ class TimerService : Service() {
         if(!bound){
 
             val intent = Intent(this, ServiceWatchCommunication::class.java)
-            bindService(intent, connection, Context.BIND_AUTO_CREATE)
+            bindService(intent, connection, BIND_AUTO_CREATE)
 
         }
     }

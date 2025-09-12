@@ -27,7 +27,7 @@
 
         <!-- BlockService 등록-->
         <service
-            android:name=".AppBlockAccessibilityService"
+            android:name=".service.AppBlockAccessibilityService"
             android:exported="true"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter>
@@ -40,18 +40,18 @@
 
         <!-- Watch통신Service 등록-->
         <service
-            android:name=".ServiceWatchCommunication"
+            android:name=".service.ServiceWatchCommunication"
             android:enabled="true"
             android:exported="false"/>
         <!-- TimerService 등록-->
         <service
-            android:name=".TimerService"
+            android:name=".service.TimerService"
             android:enabled="true"
             android:exported="false"
             android:stopWithTask="true"
             android:foregroundServiceType="dataSync"/>
         <!-- 오버레이 서비스 등록 -->
-        <service android:name=".BlockOverlayService"/>
+        <service android:name=".service.BlockOverlayService"/>
         <!-- MainActivity 등록-->
         <activity
             android:name=".Activity.MainActivity"

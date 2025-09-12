@@ -1,4 +1,4 @@
-package com.example.shared.model
+package com.example.shared.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -6,6 +6,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.shared.Myfirebase.loadTimerSettingsFireBase
 import com.example.shared.Myfirebase.setNewTimerSetting
 import com.example.shared.Myfirebase.updateTimerSetting
+import com.example.shared.model.MySubject
+import com.example.shared.model.Timer
+import com.example.shared.model.TimerOption
+import com.example.shared.model.TimerOptions
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch

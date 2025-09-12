@@ -20,9 +20,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.core.view.WindowCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.focustimer.MyBottomNavi
+import com.example.focustimer.navigation.MyBottomNavi
 import com.example.focustimer.Page.timer.TimerStoppedReceiver
-import com.example.focustimer.TimerService
+import com.example.focustimer.service.TimerService
 import com.example.focustimer.ui.theme.FocusTimerTheme
 
 class MainActivity : ComponentActivity() {

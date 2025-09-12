@@ -1,8 +1,10 @@
-package com.example.shared.model
+package com.example.shared.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.shared.Myfirebase.MyFireBase
+import com.example.shared.model.CronoTime
+import com.example.shared.model.CronoTimeSchedule
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
