@@ -43,10 +43,13 @@ fun FocusTimerTheme(
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            dynamicLightColorScheme(context)
+            //TODO 색상 테마 선택
+            //FIXME 색상SCHEME 생성
+        //if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
 
-        darkTheme -> DarkColorScheme
+        //darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
 
